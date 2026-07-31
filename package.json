@@ -1,0 +1,79 @@
+{
+  "name": "mqtt-explorer-alt",
+  "version": "1.0.0",
+  "description": "MQTT Explorer alternatifi - Electron masaüstü MQTT istemcisi",
+  "main": "out/main/main.js",
+  "author": "Numan",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nmnclk/mqtt-explorer-alt.git"
+  },
+  "bugs": {
+    "url": "https://github.com/nmnclk/mqtt-explorer-alt/issues"
+  },
+  "homepage": "https://github.com/nmnclk/mqtt-explorer-alt#readme",
+  "scripts": {
+    "dev": "electron-vite dev",
+    "build": "electron-vite build",
+    "postinstall": "electron-builder install-app-deps && (xattr -cr node_modules/electron/dist/Electron.app 2>/dev/null || true)",
+    "build:mac": "npm run build && electron-builder --mac",
+    "build:dmg": "npm run build && electron-builder --mac dmg",
+    "install:mac": "npm run build:mac && node scripts/install-mac.js",
+    "build:win": "npm run build && electron-builder --win",
+    "build:linux": "npm run build && electron-builder --linux",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.node.json"
+  },
+  "dependencies": {
+    "electron-store": "^8.2.0",
+    "mqtt": "^5.10.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "@types/react-window": "^1.8.8",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.20",
+    "electron": "^33.4.11",
+    "electron-builder": "^24.13.3",
+    "electron-vite": "^2.3.0",
+    "postcss": "^8.4.41",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-window": "^1.8.10",
+    "tailwindcss": "^3.4.10",
+    "typescript": "^5.5.4",
+    "vite": "^5.4.2"
+  },
+  "build": {
+    "appId": "com.numan.mqttexplorer",
+    "productName": "MQTT Explorer Alt",
+    "icon": "build/icon.png",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "out/**/*",
+      "package.json"
+    ],
+    "mac": {
+      "target": [
+        "dir",
+        "dmg"
+      ],
+      "identity": "-",
+      "category": "public.app-category.developer-tools"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ]
+    },
+    "linux": {
+      "target": [
+        "AppImage"
+      ],
+      "category": "Development"
+    }
+  }
+}

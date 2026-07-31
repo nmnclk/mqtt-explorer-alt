@@ -1,7 +1,7 @@
 {
   "name": "mqtt-explorer-alt",
   "version": "1.0.0",
-  "description": "MQTT Explorer alternatifi - Electron masaüstü MQTT istemcisi",
+  "description": "Modern MQTT client for Apple Silicon Macs — an open-source alternative inspired by MQTT Explorer",
   "main": "out/main/main.js",
   "author": "Numan",
   "license": "MIT",

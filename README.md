@@ -4,7 +4,7 @@ Apple Silicon (M1/M2/M3/M4) Mac'lerde çalışan, modern bir MQTT istemcisi.
 
 > **Neden bu proje?**
 >
-> [MQTT Explorer](https://github.com/thomasnordquist/MQTT-Explorer), yılların favori MQTT aracı — topic ağacı, canlı mesaj akışı ve sezgisel arayüzüyle hâlâ en iyi deneyimlerden biri. Ancak indirilebilir macOS sürümü **yaklaşık 7 yıldır** anlamlı bir güncelleme almadı ve **Apple Silicon çipli Mac'lerde artık düzgün çalışmıyor** (eski Electron mimarisi, Rosetta bile kurtaramıyor).
+> [MQTT Explorer](https://github.com/thomasnordquist/MQTT-Explorer) yılların favori MQTT aracı — topic ağacı, canlı mesaj akışı ve sezgisel arayüzüyle hâlâ en iyi deneyimlerden biri. Repo **hâlâ aktif** (commit'ler devam ediyor, 0.4 beta sürümü geliştiriliyor); fakat son **kararlı (stable) release** [v0.3.5](https://github.com/thomasnordquist/MQTT-Explorer/releases/tag/v0.3.5) **Temmuz 2019**'dan beri yayınlanmadı. İndirilebilir macOS build'i eski Electron mimarisine dayanıyor ve **Apple Silicon çipli Mac'lerde düzgün çalışmıyor**.
 >
 > Bu proje, MQTT Explorer'ın sunduğu temel deneyimi **Electron 33 + arm64** ile yeniden hayata geçirir. Resmi MQTT Explorer projesinin bir fork'u veya devamı değildir; bağımsız, açık kaynak bir alternatiftir.
 

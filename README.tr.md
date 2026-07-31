@@ -1,6 +1,6 @@
 # MQTT Explorer Alt
 
-Apple Silicon (M1/M2/M3/M4) Mac'lerde çalışan, modern bir MQTT istemcisi.
+macOS, Windows ve Linux için modern bir MQTT istemcisi.
 
 > 🇬🇧 [English documentation](README.md)
 
@@ -8,7 +8,7 @@ Apple Silicon (M1/M2/M3/M4) Mac'lerde çalışan, modern bir MQTT istemcisi.
 
 [MQTT Explorer](https://github.com/thomasnordquist/MQTT-Explorer) yılların favori MQTT aracı — topic ağacı, canlı mesaj akışı ve sezgisel arayüzüyle hâlâ en iyi deneyimlerden biri. Repo **hâlâ aktif** (commit'ler devam ediyor, 0.4 beta sürümü geliştiriliyor); fakat son **kararlı (stable) release** [v0.3.5](https://github.com/thomasnordquist/MQTT-Explorer/releases/tag/v0.3.5) **Temmuz 2019**'dan beri yayınlanmadı. İndirilebilir macOS build'i eski Electron mimarisine dayanıyor ve **Apple Silicon çipli Mac'lerde düzgün çalışmıyor**.
 
-Bu proje, MQTT Explorer'ın sunduğu temel deneyimi **Electron 33 + arm64** ile yeniden hayata geçirir. Resmi MQTT Explorer projesinin bir fork'u veya devamı değildir; bağımsız, açık kaynak bir alternatiftir.
+Bu proje, MQTT Explorer'ın sunduğu temel deneyimi **Electron 33** ile **macOS (Apple Silicon + Intel)**, **Windows** ve **Linux** üzerinde yeniden hayata geçirir. Resmi MQTT Explorer projesinin bir fork'u veya devamı değildir; bağımsız, açık kaynak bir alternatiftir.
 
 ## Özellikler
 
@@ -17,19 +17,28 @@ Bu proje, MQTT Explorer'ın sunduğu temel deneyimi **Electron 33 + arm64** ile 
 - Publish / Subscribe
 - TLS sertifika desteği
 - Bağlantı profillerini kaydetme
-- Native Apple Silicon (arm64) desteği
+- macOS (arm64 + x64), Windows (x64 + arm64), Linux (x64 + arm64) desteği
 
 ## İndir
 
-**[Releases](https://github.com/nmnclk/mqtt-explorer-alt/releases)** sayfasından en son `.dmg` dosyasını indirin.
+Platformunuza uygun dosyayı **[Releases](https://github.com/nmnclk/mqtt-explorer-alt/releases)** sayfasından indirin.
 
-### Kurulum
+| Platform | Dosya |
+|----------|-------|
+| macOS (Apple Silicon) | `*-mac-arm64.dmg` |
+| macOS (Intel) | `*-mac-x64.dmg` |
+| Windows (64-bit) | `*-win-x64.exe` |
+| Windows (ARM) | `*-win-arm64.exe` |
+| Linux (64-bit) | `*-linux-x64.AppImage` |
+| Linux (ARM64) | `*-linux-arm64.AppImage` |
+
+### macOS
 
 1. `.dmg` dosyasını açın
 2. **MQTT Explorer Alt** uygulamasını **Applications** klasörüne sürükleyin
 3. Uygulamayı başlatın
 
-### macOS güvenlik uyarısı — "Yine de Aç"
+#### Güvenlik uyarısı — "Yine de Aç"
 
 Uygulama henüz Apple tarafından notarize edilmemiştir (ücretsiz dağıtım). İlk açılışta macOS engelleyebilir. Bu normaldir; uygulama kötü amaçlı yazılım değildir.
 
@@ -47,6 +56,18 @@ xattr -cr "/Applications/MQTT Explorer Alt.app"
 
 > Apple Developer Program ($99/yıl) ile imzalama ve notarizasyon eklendiğinde bu adım gerekmez.
 
+### Windows
+
+1. `.exe` kurulum dosyasını indirip çalıştırın
+2. SmartScreen uyarısı çıkarsa **Ek bilgi → Yine de çalıştır** (imzasız build)
+
+### Linux
+
+```bash
+chmod +x MQTT\ Explorer\ Alt-*-linux-x64.AppImage
+./MQTT\ Explorer\ Alt-*-linux-x64.AppImage
+```
+
 ## Geliştirme
 
 ```bash
@@ -54,8 +75,11 @@ git clone https://github.com/nmnclk/mqtt-explorer-alt.git
 cd mqtt-explorer-alt
 npm install
 npm run dev          # geliştirme modu
-npm run build:dmg    # macOS DMG oluştur
-npm run install:mac  # derle ve Applications'a kur
+npm run build:dmg    # macOS DMG
+npm run build:win    # Windows kurulum
+npm run build:linux  # Linux AppImage
+npm run build:all    # tüm platformlar (mevcut makinede)
+npm run install:mac  # derle ve Applications'a kur (macOS)
 ```
 
 ## Teknoloji

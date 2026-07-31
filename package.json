@@ -1,7 +1,7 @@
 {
   "name": "mqtt-explorer-alt",
-  "version": "1.0.0",
-  "description": "Modern MQTT client for Apple Silicon Macs — an open-source alternative inspired by MQTT Explorer",
+  "version": "1.0.1",
+  "description": "Modern cross-platform MQTT client — an open-source alternative inspired by MQTT Explorer",
   "main": "out/main/main.js",
   "author": "Numan",
   "license": "MIT",
@@ -19,9 +19,10 @@
     "postinstall": "electron-builder install-app-deps && (xattr -cr node_modules/electron/dist/Electron.app 2>/dev/null || true)",
     "build:mac": "npm run build && electron-builder --mac",
     "build:dmg": "npm run build && electron-builder --mac dmg",
+    "build:win": "npm run build && electron-builder --win nsis",
+    "build:linux": "npm run build && electron-builder --linux AppImage",
+    "build:all": "npm run build && electron-builder --mac dmg --win nsis --linux AppImage",
     "install:mac": "npm run build:mac && node scripts/install-mac.js",
-    "build:win": "npm run build && electron-builder --win",
-    "build:linux": "npm run build && electron-builder --linux",
     "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p tsconfig.node.json"
   },
   "dependencies": {
@@ -52,28 +53,51 @@
     "directories": {
       "output": "release"
     },
+    "artifactName": "${productName}-${version}-${os}-${arch}.${ext}",
     "files": [
       "out/**/*",
       "package.json"
     ],
     "mac": {
       "target": [
-        "dir",
-        "dmg"
+        {
+          "target": "dmg",
+          "arch": [
+            "arm64",
+            "x64"
+          ]
+        }
       ],
       "identity": "-",
       "category": "public.app-category.developer-tools"
     },
     "win": {
       "target": [
-        "nsis"
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
       ]
     },
     "linux": {
       "target": [
-        "AppImage"
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
       ],
-      "category": "Development"
+      "category": "Development",
+      "maintainer": "Numan"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
     }
   }
 }

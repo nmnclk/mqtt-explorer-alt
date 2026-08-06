@@ -89,9 +89,17 @@ export const en: Messages = {
   updateDialog: {
     title: 'Update available',
     version: (latest, current) => `New version: v${latest} (you have v${current})`,
-    instructions:
-      'Download the latest build from GitHub Releases and install it over your current version. The app is not code-signed yet; use the same "Open Anyway" steps after updating.',
+    instructionsAuto:
+      'The app will download the update, restart, and install automatically — similar to Cursor or VS Code.',
+    instructionsManual:
+      'Automatic install is unavailable for this build. Download the latest installer from GitHub Releases.',
     later: 'Later',
-    openDownload: 'Open download page'
+    updateNow: 'Update now',
+    restartNow: 'Restart and update',
+    downloading: 'Downloading update…',
+    downloadProgress: (percent) => `${Math.round(percent)}% downloaded`,
+    readyToInstall: 'Update downloaded. Restart to finish installing.',
+    downloadFailed: 'Download failed. Try manual download instead.',
+    openDownload: 'Download manually'
   }
 }

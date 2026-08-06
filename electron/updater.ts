@@ -1,16 +1,21 @@
 import { app, shell } from 'electron'
+import { autoUpdater } from 'electron-updater'
 import type { BrowserWindow } from 'electron'
-import type { UpdateInfo } from '../src/types/update'
+import type { UpdateInfo, UpdateProgress } from '../src/types/update'
 
 const GITHUB_LATEST_API = 'https://api.github.com/repos/nmnclk/mqtt-explorer-alt/releases/latest'
 const RELEASE_PAGE = 'https://github.com/nmnclk/mqtt-explorer-alt/releases/latest'
 
 let mainWindow: BrowserWindow | null = null
 
-interface GitHubRelease {
-  tag_name?: string
-  html_url?: string
-  body?: string
+function sendToRenderer(channel: string, ...args: unknown[]): void {
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.webContents.send(channel, ...args)
+  }
+}
+
+function notifyUpdate(info: UpdateInfo): void {
+  sendToRenderer('update:available', info)
 }
 
 function parseVersion(version: string): number[] {
@@ -32,7 +37,7 @@ function isNewerVersion(latest: string, current: string): boolean {
   return false
 }
 
-async function fetchLatestRelease(): Promise<GitHubRelease | null> {
+async function fallbackGitHubCheck(): Promise<UpdateInfo | null> {
   try {
     const response = await fetch(GITHUB_LATEST_API, {
       headers: {
@@ -41,37 +46,101 @@ async function fetchLatestRelease(): Promise<GitHubRelease | null> {
       }
     })
     if (!response.ok) return null
-    return (await response.json()) as GitHubRelease
-  } catch (err) {
-    console.warn('Update check failed:', err)
-    return null
-  }
-}
 
-function notifyUpdate(info: UpdateInfo): void {
-  if (mainWindow && !mainWindow.isDestroyed()) {
-    mainWindow.webContents.send('update:available', info)
+    const release = (await response.json()) as {
+      tag_name?: string
+      html_url?: string
+      body?: string
+    }
+    if (!release.tag_name) return null
+
+    const latestVersion = release.tag_name.replace(/^v/i, '')
+    if (!isNewerVersion(latestVersion, app.getVersion())) return null
+
+    return {
+      version: latestVersion,
+      releaseUrl: release.html_url ?? RELEASE_PAGE,
+      releaseNotes: release.body,
+      autoInstallSupported: false
+    }
+  } catch {
+    return null
   }
 }
 
 export function initUpdater(win: BrowserWindow): void {
   mainWindow = win
+  if (!app.isPackaged) return
+
+  autoUpdater.autoDownload = false
+  autoUpdater.autoInstallOnAppQuit = false
+  autoUpdater.disableDifferentialDownload = true
+
+  autoUpdater.on('update-available', (meta) => {
+    notifyUpdate({
+      version: meta.version,
+      releaseUrl: RELEASE_PAGE,
+      releaseNotes: typeof meta.releaseNotes === 'string' ? meta.releaseNotes : undefined,
+      autoInstallSupported: true
+    })
+  })
+
+  autoUpdater.on('download-progress', (progress) => {
+    const payload: UpdateProgress = {
+      percent: progress.percent,
+      transferred: progress.transferred,
+      total: progress.total
+    }
+    sendToRenderer('update:download-progress', payload)
+  })
+
+  autoUpdater.on('update-downloaded', () => {
+    sendToRenderer('update:downloaded')
+  })
+
+  autoUpdater.on('error', (err) => {
+    console.warn('Auto-update error:', err.message)
+    sendToRenderer('update:error', err.message)
+  })
 }
 
 export async function checkForUpdates(): Promise<UpdateInfo | null> {
-  const release = await fetchLatestRelease()
-  if (!release?.tag_name) return null
+  if (!app.isPackaged) return null
 
-  const latestVersion = release.tag_name.replace(/^v/i, '')
-  const currentVersion = app.getVersion()
-
-  if (!isNewerVersion(latestVersion, currentVersion)) return null
-
-  return {
-    version: latestVersion,
-    releaseUrl: release.html_url ?? RELEASE_PAGE,
-    releaseNotes: release.body
+  try {
+    const result = await autoUpdater.checkForUpdates()
+    const update = result?.updateInfo
+    if (update && isNewerVersion(update.version, app.getVersion())) {
+      return {
+        version: update.version,
+        releaseUrl: RELEASE_PAGE,
+        releaseNotes: typeof update.releaseNotes === 'string' ? update.releaseNotes : undefined,
+        autoInstallSupported: true
+      }
+    }
+    return null
+  } catch (err) {
+    console.warn('electron-updater check failed, using GitHub fallback:', err)
+    return fallbackGitHubCheck()
   }
+}
+
+export async function downloadUpdate(): Promise<{ success: boolean; error?: string }> {
+  if (!app.isPackaged) {
+    return { success: false, error: 'Not packaged' }
+  }
+
+  try {
+    await autoUpdater.downloadUpdate()
+    return { success: true }
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err)
+    return { success: false, error: message }
+  }
+}
+
+export function installUpdate(): void {
+  autoUpdater.quitAndInstall(false, true)
 }
 
 export function scheduleUpdateChecks(): void {

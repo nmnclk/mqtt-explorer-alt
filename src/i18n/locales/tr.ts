@@ -89,9 +89,17 @@ export const tr: Messages = {
   updateDialog: {
     title: 'Güncelleme mevcut',
     version: (latest, current) => `Yeni sürüm: v${latest} (sizde v${current})`,
-    instructions:
-      'GitHub Releases\'ten en son sürümü indirip mevcut kurulumun üzerine yükleyin. Uygulama henüz kod imzalı değil; güncellemeden sonra aynı "Yine de Aç" adımlarını uygulayın.',
+    instructionsAuto:
+      'Uygulama güncellemeyi indirip kapanacak, kurulumu tamamlayıp yeniden açılacak — Cursor veya VS Code gibi.',
+    instructionsManual:
+      'Bu kurulumda otomatik güncelleme kullanılamıyor. GitHub Releases\'ten son sürümü indirin.',
     later: 'Sonra',
-    openDownload: 'İndirme sayfasını aç'
+    updateNow: 'Şimdi güncelle',
+    restartNow: 'Yeniden başlat ve güncelle',
+    downloading: 'Güncelleme indiriliyor…',
+    downloadProgress: (percent) => `%${Math.round(percent)} indirildi`,
+    readyToInstall: 'Güncelleme indirildi. Kurulumu tamamlamak için yeniden başlatın.',
+    downloadFailed: 'İndirme başarısız. Manuel indirmeyi deneyin.',
+    openDownload: 'Manuel indir'
   }
 }

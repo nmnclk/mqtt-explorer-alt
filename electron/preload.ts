@@ -10,7 +10,7 @@ import type {
   StatusEvent,
   SubscribeRequest
 } from '../src/types/mqtt'
-import type { UpdateApi, UpdateInfo } from '../src/types/update'
+import type { UpdateApi, UpdateInfo, UpdateProgress } from '../src/types/update'
 
 const mqttAPI: MqttBridgeApi = {
   connect: (config: ConnectionConfig): Promise<ConnectResult> => ipcRenderer.invoke('mqtt:connect', config),
@@ -41,12 +41,29 @@ const mqttAPI: MqttBridgeApi = {
 
 const updateAPI: UpdateApi = {
   check: (): Promise<UpdateInfo | null> => ipcRenderer.invoke('updates:check'),
+  download: (): Promise<{ success: boolean; error?: string }> => ipcRenderer.invoke('updates:download'),
+  install: (): Promise<void> => ipcRenderer.invoke('updates:install'),
   openRelease: (url: string): Promise<void> => ipcRenderer.invoke('updates:openRelease', url),
   getAppVersion: (): Promise<string> => ipcRenderer.invoke('app:getVersion'),
   onUpdateAvailable: (cb: (info: UpdateInfo) => void) => {
     const listener = (_e: Electron.IpcRendererEvent, info: UpdateInfo): void => cb(info)
     ipcRenderer.on('update:available', listener)
     return () => ipcRenderer.removeListener('update:available', listener)
+  },
+  onDownloadProgress: (cb: (progress: UpdateProgress) => void) => {
+    const listener = (_e: Electron.IpcRendererEvent, progress: UpdateProgress): void => cb(progress)
+    ipcRenderer.on('update:download-progress', listener)
+    return () => ipcRenderer.removeListener('update:download-progress', listener)
+  },
+  onUpdateDownloaded: (cb: () => void) => {
+    const listener = (): void => cb()
+    ipcRenderer.on('update:downloaded', listener)
+    return () => ipcRenderer.removeListener('update:downloaded', listener)
+  },
+  onUpdateError: (cb: (message: string) => void) => {
+    const listener = (_e: Electron.IpcRendererEvent, message: string): void => cb(message)
+    ipcRenderer.on('update:error', listener)
+    return () => ipcRenderer.removeListener('update:error', listener)
   }
 }
 

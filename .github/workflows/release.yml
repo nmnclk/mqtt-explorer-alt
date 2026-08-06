@@ -30,9 +30,10 @@ jobs:
       - run: npx electron-builder --mac dir --publish never
       - name: Ad-hoc sign macOS app
         run: chmod +x scripts/sign-mac-app.sh && ./scripts/sign-mac-app.sh
-      - name: Create DMG from signed app
+      - name: Create ZIP (auto-update) and DMG
         run: |
           APP=$(find release -name "MQTT Explorer Alt.app" -type d | head -1)
+          npx electron-builder --mac zip --publish never --prepackaged "$APP"
           npx electron-builder --mac dmg --publish never --prepackaged "$APP"
 
       - uses: actions/upload-artifact@v4
@@ -40,6 +41,8 @@ jobs:
           name: release-mac
           path: |
             release/MQTT-Explorer-Alt-*.dmg
+            release/MQTT-Explorer-Alt-*.zip
+            release/latest-mac*.yml
             release/*.blockmap
           if-no-files-found: error
 
@@ -64,6 +67,7 @@ jobs:
           name: release-win
           path: |
             release/MQTT-Explorer-Alt-*
+            release/latest*.yml
             release/*.blockmap
           if-no-files-found: error
 
@@ -88,6 +92,7 @@ jobs:
           name: release-linux
           path: |
             release/MQTT-Explorer-Alt-*
+            release/latest*.yml
           if-no-files-found: error
 
   publish:
@@ -103,8 +108,10 @@ jobs:
         with:
           files: |
             artifacts/MQTT-Explorer-Alt-*.dmg
+            artifacts/MQTT-Explorer-Alt-*.zip
             artifacts/MQTT-Explorer-Alt-*.exe
             artifacts/MQTT-Explorer-Alt-*.AppImage
+            artifacts/latest*.yml
             artifacts/*.blockmap
           fail_on_unmatched_files: true
           body_path: .github/RELEASE_BODY.md

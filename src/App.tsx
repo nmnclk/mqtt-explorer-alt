@@ -8,7 +8,7 @@ import { PublishBar } from './components/PublishBar'
 import { useMqttBridge } from './hooks/useMqttBridge'
 import { useTheme } from './hooks/useTheme'
 import { useI18n } from './i18n/I18nContext'
-import type { UpdateInfo } from './types/update'
+import type { UpdateInfo, UpdatePhase, UpdateProgress } from './types/update'
 
 export default function App(): JSX.Element {
   const bridge = useMqttBridge()
@@ -20,6 +20,9 @@ export default function App(): JSX.Element {
   const [connectionLabel, setConnectionLabel] = useState<string | undefined>()
   const [appVersion, setAppVersion] = useState('dev')
   const [updateInfo, setUpdateInfo] = useState<UpdateInfo | null>(null)
+  const [updatePhase, setUpdatePhase] = useState<UpdatePhase>('available')
+  const [updateProgress, setUpdateProgress] = useState<UpdateProgress | null>(null)
+  const [updateError, setUpdateError] = useState<string | undefined>()
   const [noUpdateNotice, setNoUpdateNotice] = useState(false)
 
   const selectedMessages = selectedTopic ? bridge.messagesByTopic.get(selectedTopic) ?? [] : []
@@ -33,11 +36,30 @@ export default function App(): JSX.Element {
   useEffect(() => {
     void window.updateAPI.getAppVersion().then(setAppVersion)
 
-    const unsub = window.updateAPI.onUpdateAvailable((info) => {
+    const unsubAvailable = window.updateAPI.onUpdateAvailable((info) => {
       setUpdateInfo(info)
+      setUpdatePhase('available')
+      setUpdateProgress(null)
+      setUpdateError(undefined)
+    })
+    const unsubProgress = window.updateAPI.onDownloadProgress((progress) => {
+      setUpdatePhase('downloading')
+      setUpdateProgress(progress)
+    })
+    const unsubDownloaded = window.updateAPI.onUpdateDownloaded(() => {
+      setUpdatePhase('ready')
+    })
+    const unsubError = window.updateAPI.onUpdateError((message) => {
+      setUpdatePhase('error')
+      setUpdateError(message)
     })
 
-    return unsub
+    return () => {
+      unsubAvailable()
+      unsubProgress()
+      unsubDownloaded()
+      unsubError()
+    }
   }, [])
 
   function handleClearAll(): void {
@@ -50,9 +72,32 @@ export default function App(): JSX.Element {
     const info = await window.updateAPI.check()
     if (info) {
       setUpdateInfo(info)
+      setUpdatePhase('available')
+      setUpdateProgress(null)
+      setUpdateError(undefined)
     } else {
       setNoUpdateNotice(true)
     }
+  }
+
+  async function handleStartDownload(): Promise<void> {
+    if (!updateInfo) return
+    setUpdatePhase('downloading')
+    setUpdateProgress({ percent: 0, transferred: 0, total: 0 })
+    setUpdateError(undefined)
+
+    const result = await window.updateAPI.download()
+    if (!result.success) {
+      setUpdatePhase('error')
+      setUpdateError(result.error)
+    }
+  }
+
+  function handleDismissUpdate(): void {
+    setUpdateInfo(null)
+    setUpdatePhase('available')
+    setUpdateProgress(null)
+    setUpdateError(undefined)
   }
 
   return (
@@ -82,8 +127,13 @@ export default function App(): JSX.Element {
         <UpdateDialog
           info={updateInfo}
           currentVersion={appVersion}
-          onDismiss={() => setUpdateInfo(null)}
-          onDownload={() => void window.updateAPI.openRelease(updateInfo.releaseUrl)}
+          phase={updatePhase}
+          progress={updateProgress}
+          errorMessage={updateError}
+          onDismiss={handleDismissUpdate}
+          onStartDownload={() => void handleStartDownload()}
+          onInstall={() => void window.updateAPI.install()}
+          onManualDownload={() => void window.updateAPI.openRelease(updateInfo.releaseUrl)}
         />
       )}
 

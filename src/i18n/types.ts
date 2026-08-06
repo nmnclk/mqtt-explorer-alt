@@ -91,8 +91,15 @@ export interface Messages {
   updateDialog: {
     title: string
     version: (latest: string, current: string) => string
-    instructions: string
+    instructionsAuto: string
+    instructionsManual: string
     later: string
+    updateNow: string
+    restartNow: string
+    downloading: string
+    downloadProgress: (percent: number) => string
+    readyToInstall: string
+    downloadFailed: string
     openDownload: string
   }
 }

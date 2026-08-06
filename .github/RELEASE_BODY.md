@@ -1,3 +1,17 @@
+## What's new in v1.0.7
+
+- **One-click auto-update** — download, restart, and install in-app (Cursor-style)
+- CI now publishes `latest*.yml` + ZIP metadata required by `electron-updater`
+- Manual download remains as fallback when auto-install is unavailable
+
+## v1.0.7 yenilikleri
+
+- **Tek tıkla otomatik güncelleme** — uygulama içinden indir, yeniden başlat, kur (Cursor tarzı)
+- CI artık `electron-updater` için gerekli `latest*.yml` ve ZIP dosyalarını yayınlıyor
+- Otomatik kurulum mümkün değilse manuel indirme yedek olarak kalır
+
+---
+
 ## What's new in v1.0.6
 
 - **English / Turkish** — language toggle (EN/TR) in the top bar; preference is saved

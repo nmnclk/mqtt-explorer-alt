@@ -3,7 +3,7 @@ import { join } from 'path'
 import Store from 'electron-store'
 import { randomUUID } from 'crypto'
 import { MqttManager } from './mqttManager'
-import { checkForUpdates, initUpdater, openReleasePage, scheduleUpdateChecks } from './updater'
+import { checkForUpdates, downloadUpdate, initUpdater, installUpdate, openReleasePage, scheduleUpdateChecks } from './updater'
 import type {
   ConnectionConfig,
   SavedConnectionProfile,
@@ -191,6 +191,8 @@ app.whenReady().then(() => {
 
   ipcMain.handle('app:getVersion', async () => app.getVersion())
   ipcMain.handle('updates:check', async () => checkForUpdates())
+  ipcMain.handle('updates:download', async () => downloadUpdate())
+  ipcMain.handle('updates:install', async () => installUpdate())
   ipcMain.handle('updates:openRelease', async (_e, url: string) => openReleasePage(url))
 
   app.on('activate', () => {

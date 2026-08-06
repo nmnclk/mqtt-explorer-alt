@@ -1,3 +1,13 @@
+### macOS — "damaged" or blocked on first launch
+
+The app is not notarized yet. After installing from the DMG, run once in Terminal:
+
+```bash
+xattr -cr "/Applications/MQTT Explorer Alt.app"
+```
+
+Then open from Applications. Alternatively: **System Settings → Privacy & Security → Open Anyway**.
+
 ## Downloads
 
 | Platform | File |
@@ -18,6 +28,16 @@
 **Linux:** `chmod +x MQTT-Explorer-Alt-*-linux-x64.AppImage && ./MQTT-Explorer-Alt-*-linux-x64.AppImage`
 
 ---
+
+### macOS — "hasar görmüş" veya engellenme uyarısı
+
+Uygulama henüz notarize edilmedi. DMG'den kurduktan sonra Terminal'de bir kez:
+
+```bash
+xattr -cr "/Applications/MQTT Explorer Alt.app"
+```
+
+Ardından Applications'dan açın. Alternatif: **Sistem Ayarları → Gizlilik ve Güvenlik → Yine de Aç**.
 
 ## İndirme
 

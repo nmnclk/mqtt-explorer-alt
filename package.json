@@ -1,6 +1,6 @@
 {
   "name": "mqtt-explorer-alt",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Modern cross-platform MQTT client — an open-source alternative inspired by MQTT Explorer",
   "main": "out/main/main.js",
   "author": "Numan",
@@ -18,7 +18,7 @@
     "build": "electron-vite build",
     "postinstall": "electron-builder install-app-deps && (xattr -cr node_modules/electron/dist/Electron.app 2>/dev/null || true)",
     "build:mac": "npm run build && electron-builder --mac",
-    "build:dmg": "npm run build && electron-builder --mac dmg",
+    "build:dmg": "npm run build && electron-builder --mac dir && ./scripts/sign-mac-app.sh && electron-builder --mac dmg --prepackaged \"$(find release -name 'MQTT Explorer Alt.app' -type d | head -1)\"",
     "build:win": "npm run build && electron-builder --win nsis",
     "build:linux": "npm run build && electron-builder --linux AppImage",
     "build:all": "npm run build && electron-builder --mac dmg --win nsis --linux AppImage",

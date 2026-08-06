@@ -38,23 +38,17 @@ Platformunuza uygun dosyayı **[Releases](https://github.com/nmnclk/mqtt-explore
 2. **MQTT Explorer Alt** uygulamasını **Applications** klasörüne sürükleyin
 3. Uygulamayı başlatın
 
-#### Güvenlik uyarısı — "Yine de Aç"
+#### Güvenlik uyarısı — "hasar görmüş" veya "Yine de Aç"
 
-Uygulama henüz Apple tarafından notarize edilmemiştir (ücretsiz dağıtım). İlk açılışta macOS engelleyebilir. Bu normaldir; uygulama kötü amaçlı yazılım değildir.
+İndirilen build'ler notarize edilmedi. macOS **"MQTT Explorer Alt.app hasar görmüş"** diyebilir — bu karantina uyarısıdır, gerçek bozulma değil.
 
-**Çözüm:**
-
-1. Uygulamayı bir kez açmayı deneyin (engellenecektir)
-2. **Sistem Ayarları → Gizlilik ve Güvenlik**'e gidin
-3. Altta **"MQTT Explorer Alt yine de aç"** veya **"Yine de Aç"** butonuna tıklayın
-
-Alternatif olarak Terminal'de:
+**Çözüm (kurulumdan sonra bir kez):**
 
 ```bash
 xattr -cr "/Applications/MQTT Explorer Alt.app"
 ```
 
-> Apple Developer Program ($99/yıl) ile imzalama ve notarizasyon eklendiğinde bu adım gerekmez.
+Veya: **Sistem Ayarları → Gizlilik ve Güvenlik → Yine de Aç**.
 
 ### Windows
 

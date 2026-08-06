@@ -38,23 +38,17 @@ Grab the latest build for your platform from **[Releases](https://github.com/nmn
 2. Drag **MQTT Explorer Alt** into **Applications**
 3. Launch the app
 
-#### Security warning — "Open Anyway"
+#### Security warning — "damaged" or "Open Anyway"
 
-This app is not yet notarized by Apple (free distribution). macOS may block it on first launch. The app is not malware.
+Downloaded builds are not notarized. macOS may show **"MQTT Explorer Alt.app is damaged"** — this is a quarantine false positive, not actual corruption.
 
-**Fix:**
-
-1. Try opening the app once (it will be blocked)
-2. Go to **System Settings → Privacy & Security**
-3. Click **"Open MQTT Explorer Alt Anyway"** or **"Open Anyway"** at the bottom
-
-Or run in Terminal:
+**Fix (run once after install):**
 
 ```bash
 xattr -cr "/Applications/MQTT Explorer Alt.app"
 ```
 
-> With an Apple Developer Program membership ($99/year), proper signing and notarization would remove this step.
+Or: **System Settings → Privacy & Security → Open Anyway**.
 
 ### Windows
 

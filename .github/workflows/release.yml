@@ -9,21 +9,8 @@ permissions:
   contents: write
 
 jobs:
-  build:
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - os: macos-latest
-            platform: mac
-            args: --mac dmg
-          - os: windows-latest
-            platform: win
-            args: --win nsis
-          - os: ubuntu-latest
-            platform: linux
-            args: --linux AppImage
-    runs-on: ${{ matrix.os }}
+  build-mac:
+    runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -36,23 +23,75 @@ jobs:
         shell: bash
         run: |
           VERSION="${GITHUB_REF_NAME#v}"
-          echo "Building version: $VERSION"
           npm version "$VERSION" --no-git-tag-version --allow-same-version
 
       - run: npm ci
       - run: npm run build
-      - run: npx electron-builder ${{ matrix.args }} --publish never
+      - run: npx electron-builder --mac dir --publish never
+      - name: Ad-hoc sign macOS app
+        run: chmod +x scripts/sign-mac-app.sh && ./scripts/sign-mac-app.sh
+      - name: Create DMG from signed app
+        run: |
+          APP=$(find release -name "MQTT Explorer Alt.app" -type d | head -1)
+          npx electron-builder --mac dmg --publish never --prepackaged "$APP"
 
       - uses: actions/upload-artifact@v4
         with:
-          name: release-${{ matrix.platform }}
+          name: release-mac
+          path: |
+            release/MQTT-Explorer-Alt-*.dmg
+            release/*.blockmap
+          if-no-files-found: error
+
+  build-win:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Sync package version from git tag
+        shell: bash
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          npm version "$VERSION" --no-git-tag-version --allow-same-version
+      - run: npm ci
+      - run: npm run build
+      - run: npx electron-builder --win nsis --publish never
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-win
           path: |
             release/MQTT-Explorer-Alt-*
             release/*.blockmap
           if-no-files-found: error
 
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Sync package version from git tag
+        shell: bash
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          npm version "$VERSION" --no-git-tag-version --allow-same-version
+      - run: npm ci
+      - run: npm run build
+      - run: npx electron-builder --linux AppImage --publish never
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-linux
+          path: |
+            release/MQTT-Explorer-Alt-*
+          if-no-files-found: error
+
   publish:
-    needs: build
+    needs: [build-mac, build-win, build-linux]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4

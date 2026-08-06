@@ -27,6 +27,7 @@
   },
   "dependencies": {
     "electron-store": "^8.2.0",
+    "electron-updater": "^6.3.9",
     "mqtt": "^5.10.1"
   },
   "devDependencies": {
@@ -98,6 +99,11 @@
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true
+    },
+    "publish": {
+      "provider": "github",
+      "owner": "nmnclk",
+      "repo": "mqtt-explorer-alt"
     }
   }
 }

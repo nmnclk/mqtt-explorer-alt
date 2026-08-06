@@ -14,5 +14,5 @@
     },
     "types": ["node", "electron-vite/node"]
   },
-  "include": ["electron", "electron.vite.config.ts", "src/types/mqtt.ts"]
+  "include": ["electron", "electron.vite.config.ts", "src/types/mqtt.ts", "src/types/update.ts"]
 }

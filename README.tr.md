@@ -68,6 +68,14 @@ chmod +x MQTT\ Explorer\ Alt-*-linux-x64.AppImage
 ./MQTT\ Explorer\ Alt-*-linux-x64.AppImage
 ```
 
+## Güncellemeler
+
+Paketlenmiş uygulama açılışta ve her 6 saatte bir [GitHub Releases](https://github.com/nmnclk/mqtt-explorer-alt/releases) sayfasını kontrol eder. Yeni sürüm varsa indirme linki içeren bir dialog gösterilir.
+
+Üst bardaki **Updates** butonuyla manuel kontrol de yapabilirsiniz.
+
+> Otomatik kurulum için kod imzalama gerekir. Şimdilik yeni build'i indirip uygulamanın üzerine kurmanız yeterli.
+
 ## Geliştirme
 
 ```bash

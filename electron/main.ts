@@ -3,6 +3,7 @@ import { join } from 'path'
 import Store from 'electron-store'
 import { randomUUID } from 'crypto'
 import { MqttManager } from './mqttManager'
+import { checkForUpdates, initUpdater, openReleasePage, scheduleUpdateChecks } from './updater'
 import type {
   ConnectionConfig,
   SavedConnectionProfile,
@@ -63,6 +64,10 @@ function createWindow(): void {
 
 app.whenReady().then(() => {
   createWindow()
+  if (mainWindow) {
+    initUpdater(mainWindow)
+    scheduleUpdateChecks()
+  }
 
   // --- MQTT event köprüsü: main içindeki manager event'lerini renderer'a ilet ---
   mqttManager.onStatus((evt) => {
@@ -131,6 +136,39 @@ app.whenReady().then(() => {
     }
   )
 
+  ipcMain.handle(
+    'profiles:update',
+    async (
+      _e,
+      id: string,
+      profile: Omit<SavedConnectionProfile, 'id' | 'hasSavedPassword'>,
+      password?: string
+    ): Promise<SavedConnectionProfile> => {
+      const profiles = store.get('profiles')
+      const existing = profiles[id]
+      if (!existing) throw new Error('Profile not found')
+
+      let hasSavedPassword = existing.hasSavedPassword
+      const secrets = store.get('secrets')
+
+      if (password !== undefined) {
+        if (password && safeStorage.isEncryptionAvailable()) {
+          secrets[id] = safeStorage.encryptString(password).toString('base64')
+          hasSavedPassword = true
+        } else {
+          delete secrets[id]
+          hasSavedPassword = false
+        }
+        store.set('secrets', secrets)
+      }
+
+      const updated: SavedConnectionProfile = { ...profile, id, hasSavedPassword }
+      profiles[id] = updated
+      store.set('profiles', profiles)
+      return updated
+    }
+  )
+
   ipcMain.handle('profiles:delete', async (_e, id: string) => {
     const profiles = store.get('profiles')
     delete profiles[id]
@@ -150,6 +188,10 @@ app.whenReady().then(() => {
       return undefined
     }
   })
+
+  ipcMain.handle('app:getVersion', async () => app.getVersion())
+  ipcMain.handle('updates:check', async () => checkForUpdates())
+  ipcMain.handle('updates:openRelease', async (_e, url: string) => openReleasePage(url))
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()

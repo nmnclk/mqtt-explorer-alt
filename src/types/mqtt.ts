@@ -91,6 +91,11 @@ export interface MqttBridgeApi {
     profile: Omit<SavedConnectionProfile, 'id' | 'hasSavedPassword'>,
     password?: string
   ) => Promise<SavedConnectionProfile>
+  updateProfile: (
+    id: string,
+    profile: Omit<SavedConnectionProfile, 'id' | 'hasSavedPassword'>,
+    password?: string
+  ) => Promise<SavedConnectionProfile>
   deleteProfile: (id: string) => Promise<void>
   getProfilePassword: (id: string) => Promise<string | undefined>
 

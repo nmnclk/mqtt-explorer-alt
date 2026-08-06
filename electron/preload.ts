@@ -10,9 +10,9 @@ import type {
   StatusEvent,
   SubscribeRequest
 } from '../src/types/mqtt'
+import type { UpdateApi, UpdateInfo } from '../src/types/update'
 
-// nodeIntegration: false, contextIsolation: true -> renderer'a sadece bu yüzey açılır.
-const api: MqttBridgeApi = {
+const mqttAPI: MqttBridgeApi = {
   connect: (config: ConnectionConfig): Promise<ConnectResult> => ipcRenderer.invoke('mqtt:connect', config),
   disconnect: (): Promise<void> => ipcRenderer.invoke('mqtt:disconnect'),
   subscribe: (req: SubscribeRequest): Promise<ConnectResult> => ipcRenderer.invoke('mqtt:subscribe', req),
@@ -21,6 +21,7 @@ const api: MqttBridgeApi = {
 
   listProfiles: (): Promise<SavedConnectionProfile[]> => ipcRenderer.invoke('profiles:list'),
   saveProfile: (profile, password) => ipcRenderer.invoke('profiles:save', profile, password),
+  updateProfile: (id, profile, password) => ipcRenderer.invoke('profiles:update', id, profile, password),
   deleteProfile: (id: string): Promise<void> => ipcRenderer.invoke('profiles:delete', id),
   getProfilePassword: (id: string): Promise<string | undefined> =>
     ipcRenderer.invoke('profiles:getPassword', id),
@@ -38,4 +39,16 @@ const api: MqttBridgeApi = {
   }
 }
 
-contextBridge.exposeInMainWorld('mqttAPI', api)
+const updateAPI: UpdateApi = {
+  check: (): Promise<UpdateInfo | null> => ipcRenderer.invoke('updates:check'),
+  openRelease: (url: string): Promise<void> => ipcRenderer.invoke('updates:openRelease', url),
+  getAppVersion: (): Promise<string> => ipcRenderer.invoke('app:getVersion'),
+  onUpdateAvailable: (cb: (info: UpdateInfo) => void) => {
+    const listener = (_e: Electron.IpcRendererEvent, info: UpdateInfo): void => cb(info)
+    ipcRenderer.on('update:available', listener)
+    return () => ipcRenderer.removeListener('update:available', listener)
+  }
+}
+
+contextBridge.exposeInMainWorld('mqttAPI', mqttAPI)
+contextBridge.exposeInMainWorld('updateAPI', updateAPI)

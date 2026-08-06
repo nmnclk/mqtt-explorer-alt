@@ -68,6 +68,14 @@ chmod +x MQTT\ Explorer\ Alt-*-linux-x64.AppImage
 ./MQTT\ Explorer\ Alt-*-linux-x64.AppImage
 ```
 
+## Updates
+
+The packaged app checks [GitHub Releases](https://github.com/nmnclk/mqtt-explorer-alt/releases) on startup and every 6 hours. When a new version is available, a dialog appears with a link to the download page.
+
+You can also click **Updates** in the top bar to check manually.
+
+> Automatic in-app installation requires code signing. Until then, download the new build and replace the app manually.
+
 ## Development
 
 ```bash

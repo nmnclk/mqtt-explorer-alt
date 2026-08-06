@@ -32,6 +32,13 @@ jobs:
           node-version: 20
           cache: npm
 
+      - name: Sync package version from git tag
+        shell: bash
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          echo "Building version: $VERSION"
+          npm version "$VERSION" --no-git-tag-version --allow-same-version
+
       - run: npm ci
       - run: npm run build
       - run: npx electron-builder ${{ matrix.args }} --publish never
@@ -40,9 +47,7 @@ jobs:
         with:
           name: release-${{ matrix.platform }}
           path: |
-            release/*.dmg
-            release/*.exe
-            release/*.AppImage
+            release/MQTT-Explorer-Alt-*
             release/*.blockmap
           if-no-files-found: error
 
@@ -57,5 +62,10 @@ jobs:
 
       - uses: softprops/action-gh-release@v2
         with:
-          files: artifacts/**
+          files: |
+            artifacts/MQTT-Explorer-Alt-*.dmg
+            artifacts/MQTT-Explorer-Alt-*.exe
+            artifacts/MQTT-Explorer-Alt-*.AppImage
+            artifacts/*.blockmap
+          fail_on_unmatched_files: true
           body_path: .github/RELEASE_BODY.md

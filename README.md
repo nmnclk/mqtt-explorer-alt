@@ -25,12 +25,12 @@ Grab the latest build for your platform from **[Releases](https://github.com/nmn
 
 | Platform | File |
 |----------|------|
-| macOS (Apple Silicon) | `*-mac-arm64.dmg` |
-| macOS (Intel) | `*-mac-x64.dmg` |
-| Windows (64-bit) | `*-win-x64.exe` |
-| Windows (ARM) | `*-win-arm64.exe` |
-| Linux (64-bit) | `*-linux-x64.AppImage` |
-| Linux (ARM64) | `*-linux-arm64.AppImage` |
+| macOS (Apple Silicon) | `MQTT-Explorer-Alt-*-mac-arm64.dmg` |
+| macOS (Intel) | `MQTT-Explorer-Alt-*-mac-x64.dmg` |
+| Windows (64-bit) | `MQTT-Explorer-Alt-*-win-x64.exe` |
+| Windows (ARM) | `MQTT-Explorer-Alt-*-win-arm64.exe` |
+| Linux (64-bit) | `MQTT-Explorer-Alt-*-linux-x64.AppImage` |
+| Linux (ARM64) | `MQTT-Explorer-Alt-*-linux-arm64.AppImage` |
 
 ### macOS
 

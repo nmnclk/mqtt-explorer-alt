@@ -1,4 +1,19 @@
-### macOS — "damaged" or blocked on first launch
+## What's new in v1.0.4
+
+- **Signal theme** — custom dark/light color palette with theme toggle (☀/☾)
+- **Topic tree** — improved layout, larger expand/collapse targets, expand/collapse all buttons
+- **Performance** — smoother tree rendering, hover flicker fix, throttled tree updates
+- **UI polish** — Turkish labels, connection dialog aligned with app theme, IBM Plex fonts
+
+## v1.0.4 yenilikleri
+
+- **Signal teması** — özel koyu/açık renk paleti ve tema değiştirme (☀/☾)
+- **Topic ağacı** — geliştirilmiş görünüm, kolay aç/kapat, tümünü aç/kapat butonları
+- **Performans** — daha akıcı ağaç render'ı, hover titremesi düzeltmesi, toplu güncelleme
+- **Arayüz** — Türkçe etiketler, bağlantı penceresi tema uyumu, IBM Plex fontları
+
+---
+
 
 The app is not notarized yet. After installing from the DMG, run once in Terminal:
 

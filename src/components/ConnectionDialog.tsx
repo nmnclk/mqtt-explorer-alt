@@ -14,13 +14,17 @@ const DEFAULT_PORTS: Record<MqttProtocol, number> = {
   wss: 8084
 }
 
+const inputClass =
+  'mt-1 w-full bg-bg-raised border border-bg-border rounded px-3 py-2 text-sm text-fg focus:outline-none focus:border-accent disabled:opacity-50'
+const labelClass = 'text-xs text-fg-muted'
+
 function randomClientId(): string {
   return `explorer_${Math.random().toString(36).slice(2, 10)}`
 }
 
 function defaultFormState() {
   return {
-    name: 'new connection',
+    name: 'Yeni bağlantı',
     protocol: 'mqtt' as MqttProtocol,
     host: 'localhost',
     port: DEFAULT_PORTS.mqtt,
@@ -55,7 +59,6 @@ export function ConnectionDialog({
   const [form, setForm] = useState(defaultFormState)
   const [profiles, setProfiles] = useState<SavedConnectionProfile[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
-  const [advancedOpen, setAdvancedOpen] = useState(false)
   const [connectError, setConnectError] = useState<string | undefined>()
   const [showPassword, setShowPassword] = useState(false)
 
@@ -83,7 +86,6 @@ export function ConnectionDialog({
   function handleNewConnection(): void {
     setSelectedId(null)
     setForm(defaultFormState())
-    setAdvancedOpen(false)
     setConnectError(undefined)
   }
 
@@ -105,7 +107,6 @@ export function ConnectionDialog({
       certPath: profile.tls?.certPath,
       keyPath: profile.tls?.keyPath
     })
-    setAdvancedOpen(Boolean(profile.tls))
   }
 
   async function handlePickFile(field: 'caPath' | 'certPath' | 'keyPath'): Promise<void> {
@@ -137,7 +138,7 @@ export function ConnectionDialog({
 
   function profilePayload(): Omit<SavedConnectionProfile, 'id' | 'hasSavedPassword'> {
     return {
-      name: form.name.trim() || 'new connection',
+      name: form.name.trim() || 'Yeni bağlantı',
       protocol: form.protocol,
       host: form.host,
       port: form.port,
@@ -189,35 +190,37 @@ export function ConnectionDialog({
   const uriPreview = `${form.protocol}://${form.host || '…'}:${form.port}${isWs ? form.path : ''}`
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-overlay/60 p-4" onClick={onClose}>
       <div
-        className="bg-[#f5f5f0] text-gray-900 rounded-lg shadow-2xl w-full max-w-4xl min-h-[520px] flex flex-col overflow-hidden"
+        className="bg-bg-panel border border-bg-border rounded-lg shadow-2xl w-full max-w-4xl min-h-[500px] flex flex-col overflow-hidden text-fg"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex flex-1 min-h-0">
-          {/* Sol: bağlantı listesi */}
-          <div className="w-56 shrink-0 border-r border-gray-300 bg-[#ecece6] flex flex-col">
-            <div className="flex items-center gap-2 px-3 py-3 border-b border-gray-300">
+          <aside className="w-52 shrink-0 border-r border-bg-border bg-bg-base flex flex-col">
+            <div className="flex items-center justify-between px-3 py-3 border-b border-bg-border">
+              <span className="text-sm font-medium text-fg-muted">Bağlantılar</span>
               <button
                 type="button"
                 onClick={handleNewConnection}
-                className="w-8 h-8 rounded-full bg-[#f5c518] hover:bg-[#e0b010] text-gray-900 font-bold text-lg leading-none shadow"
+                className="w-7 h-7 rounded bg-accent-muted hover:bg-accent/30 text-accent text-lg leading-none transition-colors"
                 title="Yeni bağlantı"
               >
                 +
               </button>
-              <span className="text-sm font-semibold text-gray-700">Connections</span>
             </div>
             <ul className="flex-1 overflow-y-auto py-1">
+              {profiles.length === 0 && (
+                <li className="px-3 py-2 text-xs text-fg-subtle">Kayıtlı profil yok</li>
+              )}
               {profiles.map((p) => (
                 <li key={p.id}>
                   <button
                     type="button"
                     onClick={() => void loadProfile(p)}
-                    className={`w-full text-left px-4 py-2.5 text-sm truncate ${
+                    className={`w-full text-left px-3 py-2 text-sm truncate transition-colors ${
                       selectedId === p.id
-                        ? 'bg-white/80 font-medium text-gray-900'
-                        : 'text-gray-600 hover:bg-white/50'
+                        ? 'bg-bg-raised text-fg border-l-2 border-accent'
+                        : 'text-fg-muted hover:bg-bg-raised/60 hover:text-fg'
                     }`}
                   >
                     {p.name}
@@ -225,20 +228,29 @@ export function ConnectionDialog({
                 </li>
               ))}
             </ul>
-          </div>
+          </aside>
 
-          {/* Sağ: form */}
-          <div className="flex-1 flex flex-col min-w-0 bg-[#f5f5f0]">
-            <div className="px-6 py-4 border-b border-gray-300">
-              <h2 className="text-xl font-semibold text-gray-800">MQTT Connection</h2>
-              <p className="text-sm text-gray-500 mono mt-0.5">{uriPreview}</p>
+          <div className="flex-1 flex flex-col min-w-0">
+            <div className="px-5 py-4 border-b border-bg-border flex items-start justify-between gap-4">
+              <div>
+                <h2 className="text-base font-semibold text-fg">Bağlantı ayarları</h2>
+                <p className="text-xs text-fg-subtle mono mt-1">{uriPreview}</p>
+              </div>
+              <button
+                type="button"
+                onClick={onClose}
+                className="text-fg-subtle hover:text-fg text-lg leading-none px-1 transition-colors"
+                aria-label="Kapat"
+              >
+                ×
+              </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+            <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
               <label className="block">
-                <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Name</span>
+                <span className={labelClass}>Profil adı</span>
                 <input
-                  className="mt-1 w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white"
+                  className={inputClass}
                   value={form.name}
                   onChange={(e) => patch('name', e.target.value)}
                   disabled={isConnected}
@@ -247,9 +259,9 @@ export function ConnectionDialog({
 
               <div className="grid grid-cols-2 gap-4">
                 <label className="block">
-                  <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Protocol</span>
+                  <span className={labelClass}>Protokol</span>
                   <select
-                    className="mt-1 w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white"
+                    className={inputClass}
                     value={form.protocol}
                     onChange={(e) => handleProtocolChange(e.target.value as MqttProtocol)}
                     disabled={isConnected}
@@ -261,10 +273,10 @@ export function ConnectionDialog({
                   </select>
                 </label>
                 <label className="block">
-                  <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Port</span>
+                  <span className={labelClass}>Port</span>
                   <input
                     type="number"
-                    className="mt-1 w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white"
+                    className={inputClass}
                     value={form.port}
                     onChange={(e) => patch('port', Number(e.target.value))}
                     disabled={isConnected}
@@ -273,9 +285,9 @@ export function ConnectionDialog({
               </div>
 
               <label className="block">
-                <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Host</span>
+                <span className={labelClass}>Host</span>
                 <input
-                  className="mt-1 w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white"
+                  className={inputClass}
                   value={form.host}
                   onChange={(e) => patch('host', e.target.value)}
                   disabled={isConnected}
@@ -285,9 +297,9 @@ export function ConnectionDialog({
 
               {isWs && (
                 <label className="block">
-                  <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Path</span>
+                  <span className={labelClass}>Path</span>
                   <input
-                    className="mt-1 w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white mono"
+                    className={`${inputClass} mono`}
                     value={form.path}
                     onChange={(e) => patch('path', e.target.value)}
                     disabled={isConnected}
@@ -297,59 +309,59 @@ export function ConnectionDialog({
 
               <div className="grid grid-cols-2 gap-4">
                 <label className="block">
-                  <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Username</span>
+                  <span className={labelClass}>Kullanıcı adı</span>
                   <input
-                    className="mt-1 w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white"
+                    className={inputClass}
                     value={form.username}
                     onChange={(e) => patch('username', e.target.value)}
                     disabled={isConnected}
                   />
                 </label>
                 <label className="block">
-                  <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Password</span>
+                  <span className={labelClass}>Parola</span>
                   <div className="relative mt-1">
                     <input
                       type={showPassword ? 'text' : 'password'}
-                      className="w-full border border-gray-300 rounded px-3 py-2 pr-16 text-sm bg-white"
+                      className={`${inputClass} mt-0 pr-14`}
                       value={form.password}
                       onChange={(e) => patch('password', e.target.value)}
                       disabled={isConnected}
                     />
                     <button
                       type="button"
-                      className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-gray-500"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-fg-subtle hover:text-fg transition-colors"
                       onClick={() => setShowPassword((v) => !v)}
                     >
-                      {showPassword ? 'hide' : 'show'}
+                      {showPassword ? 'Gizle' : 'Göster'}
                     </button>
                   </div>
                 </label>
               </div>
 
               <label className="block">
-                <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Client ID</span>
+                <span className={labelClass}>Client ID</span>
                 <input
-                  className="mt-1 w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white mono"
+                  className={`${inputClass} mono`}
                   value={form.clientId}
                   onChange={(e) => patch('clientId', e.target.value)}
                   disabled={isConnected}
                 />
               </label>
 
-              <div className="grid grid-cols-[1fr_auto] gap-2 items-end">
+              <div className="grid grid-cols-[1fr_auto] gap-3 items-end">
                 <label className="block">
-                  <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">Subscribe filter</span>
+                  <span className={labelClass}>Subscribe filtresi</span>
                   <input
-                    className="mt-1 w-full border border-gray-300 rounded px-3 py-2 text-sm bg-white mono"
+                    className={`${inputClass} mono`}
                     value={form.subscribeFilter}
                     onChange={(e) => patch('subscribeFilter', e.target.value)}
                     placeholder="#"
                   />
                 </label>
-                <label className="block w-24">
-                  <span className="text-xs font-medium text-gray-500 uppercase tracking-wide">QoS</span>
+                <label className="block w-20">
+                  <span className={labelClass}>QoS</span>
                   <select
-                    className="mt-1 w-full border border-gray-300 rounded px-2 py-2 text-sm bg-white"
+                    className={inputClass}
                     value={form.subscribeQos}
                     onChange={(e) => patch('subscribeQos', Number(e.target.value) as QoS)}
                   >
@@ -360,90 +372,84 @@ export function ConnectionDialog({
                 </label>
               </div>
 
-              {advancedOpen && isTls && (
-                <div className="border border-gray-300 rounded p-4 space-y-3 bg-white">
-                  <label className="flex items-center gap-2 text-sm">
+              {isTls && (
+                <div className="border border-bg-border rounded-lg p-4 space-y-3 bg-bg-raised/50">
+                  <p className="text-xs font-medium text-fg-muted">TLS</p>
+                  <label className="flex items-center gap-2 text-sm text-fg-muted">
                     <input
                       type="checkbox"
                       checked={!form.rejectUnauthorized}
                       onChange={(e) => patch('rejectUnauthorized', !e.target.checked)}
+                      className="rounded border-bg-border"
                     />
                     Self-signed sertifikaya izin ver
                   </label>
                   <div className="flex flex-wrap gap-2">
                     <button
                       type="button"
-                      className="text-xs border border-gray-300 rounded px-3 py-1.5 hover:bg-gray-50"
+                      className="text-xs bg-bg-panel border border-bg-border rounded px-3 py-1.5 hover:bg-bg-border"
                       onClick={() => handlePickFile('caPath')}
                     >
-                      CA {form.caPath ? '✓' : '…'}
+                      CA {form.caPath ? '✓' : 'seç'}
                     </button>
                     <button
                       type="button"
-                      className="text-xs border border-gray-300 rounded px-3 py-1.5 hover:bg-gray-50"
+                      className="text-xs bg-bg-panel border border-bg-border rounded px-3 py-1.5 hover:bg-bg-border"
                       onClick={() => handlePickFile('certPath')}
                     >
-                      Cert {form.certPath ? '✓' : '…'}
+                      Cert {form.certPath ? '✓' : 'seç'}
                     </button>
                     <button
                       type="button"
-                      className="text-xs border border-gray-300 rounded px-3 py-1.5 hover:bg-gray-50"
+                      className="text-xs bg-bg-panel border border-bg-border rounded px-3 py-1.5 hover:bg-bg-border"
                       onClick={() => handlePickFile('keyPath')}
                     >
-                      Key {form.keyPath ? '✓' : '…'}
+                      Key {form.keyPath ? '✓' : 'seç'}
                     </button>
                   </div>
                 </div>
               )}
 
               {connectError && (
-                <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded px-3 py-2">
+                <p className="text-sm text-state-error bg-state-error/10 border border-state-error/30 rounded px-3 py-2">
                   {connectError}
                 </p>
               )}
             </div>
 
-            <div className="px-6 py-4 border-t border-gray-300 flex items-center gap-2 bg-[#ecece6]">
+            <div className="px-5 py-3 border-t border-bg-border flex items-center gap-2 bg-bg-base">
               <button
                 type="button"
                 onClick={() => void handleDelete()}
                 disabled={!selectedId || isConnected}
-                className="px-4 py-2 text-sm rounded border border-gray-400 text-gray-600 hover:bg-gray-100 disabled:opacity-40"
+                className="px-3 py-1.5 text-sm rounded border border-bg-border text-fg-muted hover:text-state-error hover:border-state-error/50 disabled:opacity-40 transition-colors"
               >
-                DELETE
-              </button>
-              <button
-                type="button"
-                onClick={() => setAdvancedOpen((v) => !v)}
-                disabled={!isTls}
-                className="px-4 py-2 text-sm rounded border border-gray-400 text-gray-600 hover:bg-gray-100 disabled:opacity-40"
-              >
-                ADVANCED
+                Sil
               </button>
               <div className="flex-1" />
               <button
                 type="button"
                 onClick={() => void handleSave()}
                 disabled={isConnected}
-                className="px-5 py-2 text-sm rounded bg-[#f5c518] hover:bg-[#e0b010] font-semibold text-gray-900 disabled:opacity-40"
+                className="px-4 py-1.5 text-sm rounded border border-bg-border bg-bg-raised hover:bg-bg-border disabled:opacity-40"
               >
-                SAVE
+                Kaydet
               </button>
               {!isConnected ? (
                 <button
                   type="button"
                   onClick={() => void handleConnect()}
-                  className="px-5 py-2 text-sm rounded bg-[#1a7a7a] hover:bg-[#156565] text-white font-semibold"
+                  className="px-4 py-1.5 text-sm rounded bg-accent hover:bg-accent-hover text-bg-base font-medium transition-colors"
                 >
-                  CONNECT
+                  Bağlan
                 </button>
               ) : (
                 <button
                   type="button"
                   onClick={onClose}
-                  className="px-5 py-2 text-sm rounded bg-gray-600 hover:bg-gray-700 text-white font-semibold"
+                  className="px-4 py-1.5 text-sm rounded bg-bg-raised border border-bg-border hover:bg-bg-border"
                 >
-                  CLOSE
+                  Kapat
                 </button>
               )}
             </div>

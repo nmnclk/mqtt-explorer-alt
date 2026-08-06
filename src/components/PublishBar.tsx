@@ -31,13 +31,13 @@ export function PublishBar({ selectedTopic, onPublish }: Props): JSX.Element {
     <div className="border-t border-bg-border bg-bg-panel p-2 flex flex-col gap-2">
       <div className="flex gap-2">
         <input
-          className="bg-bg-raised border border-bg-border rounded px-2 py-1.5 text-sm mono flex-1"
+          className="bg-bg-raised border border-bg-border rounded px-2 py-1.5 text-sm mono flex-1 text-fg placeholder:text-fg-subtle"
           placeholder="Topic"
           value={topic}
           onChange={(e) => setTopic(e.target.value)}
         />
         <select
-          className="bg-bg-raised border border-bg-border rounded px-2 text-sm"
+          className="bg-bg-raised border border-bg-border rounded px-2 text-sm text-fg"
           value={qos}
           onChange={(e) => setQos(Number(e.target.value) as QoS)}
         >
@@ -45,13 +45,13 @@ export function PublishBar({ selectedTopic, onPublish }: Props): JSX.Element {
           <option value={1}>QoS 1</option>
           <option value={2}>QoS 2</option>
         </select>
-        <label className="flex items-center gap-1 text-xs text-gray-400 px-2">
+        <label className="flex items-center gap-1 text-xs text-fg-muted px-2">
           <input type="checkbox" checked={retain} onChange={(e) => setRetain(e.target.checked)} />
           Retain
         </label>
       </div>
       <textarea
-        className="bg-bg-raised border border-bg-border rounded px-2 py-1.5 text-sm mono resize-y min-h-[60px]"
+        className="bg-bg-raised border border-bg-border rounded px-2 py-1.5 text-sm mono resize-y min-h-[60px] text-fg placeholder:text-fg-subtle"
         placeholder='Payload (düz metin veya JSON, örn. {"status":"ok"})'
         value={payload}
         onChange={(e) => setPayload(e.target.value)}
@@ -59,11 +59,11 @@ export function PublishBar({ selectedTopic, onPublish }: Props): JSX.Element {
       <div className="flex items-center gap-2">
         <button
           onClick={handlePublish}
-          className="bg-accent hover:bg-accent/80 transition-colors px-4 py-1.5 rounded text-sm font-medium"
+          className="bg-accent hover:bg-accent-hover text-bg-base transition-colors px-4 py-1.5 rounded text-sm font-medium"
         >
           Publish
         </button>
-        {status && <span className="text-xs text-gray-400">{status}</span>}
+        {status && <span className="text-xs text-fg-muted">{status}</span>}
       </div>
     </div>
   )

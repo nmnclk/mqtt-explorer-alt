@@ -2,18 +2,83 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ── Signal paleti: koyu ── */
+:root,
+[data-theme='dark'] {
+  color-scheme: dark;
+
+  --bg-base: 15 18 25;
+  --bg-panel: 22 27 38;
+  --bg-raised: 30 37 51;
+  --border: 45 54 72;
+
+  --fg: 230 233 239;
+  --fg-muted: 137 147 164;
+  --fg-subtle: 90 100 120;
+
+  --accent: 45 212 191;
+  --accent-hover: 20 184 166;
+  --accent-muted: 15 61 56;
+
+  --state-connected: 52 211 153;
+  --state-connecting: 251 191 36;
+  --state-error: 248 113 113;
+  --state-idle: 107 114 128;
+
+  --overlay: 0 0 0;
+  --syntax-key: 56 189 248;
+  --syntax-string: 52 211 153;
+  --syntax-number: 192 132 252;
+  --syntax-bool: 251 191 36;
+  --syntax-null: 107 114 128;
+  --warn-bg: 120 53 15;
+  --warn-fg: 253 230 138;
+}
+
+/* ── Signal paleti: açık ── */
+[data-theme='light'] {
+  color-scheme: light;
+
+  --bg-base: 240 237 230;
+  --bg-panel: 250 249 246;
+  --bg-raised: 232 228 219;
+  --border: 207 201 188;
+
+  --fg: 26 31 46;
+  --fg-muted: 92 101 120;
+  --fg-subtle: 138 146 158;
+
+  --accent: 13 148 136;
+  --accent-hover: 15 118 110;
+  --accent-muted: 204 251 241;
+
+  --state-connected: 5 150 105;
+  --state-connecting: 217 119 6;
+  --state-error: 220 38 38;
+  --state-idle: 156 163 175;
+
+  --overlay: 26 31 46;
+  --syntax-key: 3 105 161;
+  --syntax-string: 5 122 85;
+  --syntax-number: 109 40 217;
+  --syntax-bool: 180 83 9;
+  --syntax-null: 156 163 175;
+  --warn-bg: 254 243 199;
+  --warn-fg: 146 64 14;
+}
+
 html,
 body,
 #root {
   height: 100%;
   margin: 0;
-  background-color: #111318;
-  color: #e6e8ee;
+  background-color: rgb(var(--bg-base));
+  color: rgb(var(--fg));
   font-family:
+    'IBM Plex Sans',
     -apple-system,
     BlinkMacSystemFont,
     'Segoe UI',
-    Roboto,
     sans-serif;
 }
 
@@ -29,13 +94,13 @@ body,
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #2a2f3a;
+  background: rgb(var(--border));
   border-radius: 6px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3a4152;
+  background: rgb(var(--fg-subtle));
 }
 
 .mono {
-  font-family: 'SF Mono', Menlo, Consolas, monospace;
+  font-family: 'IBM Plex Mono', 'SF Mono', Menlo, Consolas, monospace;
 }

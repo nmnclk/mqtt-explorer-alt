@@ -32,6 +32,7 @@ export function useMqttBridge(): UseMqttBridgeResult {
 
   const treeRootRef = useRef<TopicNode>(createRoot())
   const messagesByTopicRef = useRef<Map<string, IncomingMessage[]>>(new Map())
+  const treeFlushRef = useRef<number | null>(null)
 
   useEffect(() => {
     const offStatus = window.mqttAPI.onStatus((evt) => {
@@ -55,14 +56,22 @@ export function useMqttBridge(): UseMqttBridgeResult {
         }
       }
 
-      // Tek bir setState çağrısıyla toplu güncelleme - React 18 otomatik batching yeterli.
-      setTreeVersion((v) => v + 1)
       setTotalMessageCount((c) => c + batch.length)
+
+      if (treeFlushRef.current !== null) return
+
+      treeFlushRef.current = window.setTimeout(() => {
+        treeFlushRef.current = null
+        setTreeVersion((v) => v + 1)
+      }, 120)
     })
 
     return () => {
       offStatus()
       offMessages()
+      if (treeFlushRef.current !== null) {
+        window.clearTimeout(treeFlushRef.current)
+      }
     }
   }, [])
 

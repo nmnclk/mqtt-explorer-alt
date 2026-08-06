@@ -6,8 +6,7 @@ interface Props {
   messages: IncomingMessage[]
 }
 
-/** JSON.stringify çıktısını basit regex tabanlı token'lara ayırıp renklendirir.
- * Ağır bir tokenizer/parser kullanmadan key/string/number/boolean/null renklerini ayırt eder. */
+/** JSON.stringify çıktısını basit regex tabanlı token'lara ayırıp renklendirir. */
 function highlightJson(jsonText: string): JSX.Element {
   const tokenRegex = /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+\.?\d*([eE][+-]?\d+)?)/g
   const parts: JSX.Element[] = []
@@ -20,12 +19,12 @@ function highlightJson(jsonText: string): JSX.Element {
       parts.push(<span key={key++}>{jsonText.slice(lastIndex, match.index)}</span>)
     }
     const token = match[0]
-    let className = 'text-emerald-400' // string değer
-    if (/:\s*$/.test(token)) className = 'text-sky-400' // key
-    else if (/^"(.*)"$/.test(token)) className = 'text-emerald-400'
-    else if (/^(true|false)$/.test(token)) className = 'text-amber-400'
-    else if (token === 'null') className = 'text-gray-500'
-    else if (/^-?\d/.test(token)) className = 'text-purple-400'
+    let className = 'text-syntax-string'
+    if (/:\s*$/.test(token)) className = 'text-syntax-key'
+    else if (/^"(.*)"$/.test(token)) className = 'text-syntax-string'
+    else if (/^(true|false)$/.test(token)) className = 'text-syntax-bool'
+    else if (token === 'null') className = 'text-syntax-null'
+    else if (/^-?\d/.test(token)) className = 'text-syntax-number'
 
     parts.push(
       <span key={key++} className={className}>
@@ -66,7 +65,7 @@ export function MessagePanel({ topic, messages }: Props): JSX.Element {
 
   if (!topic) {
     return (
-      <div className="flex-1 flex items-center justify-center text-gray-500 text-sm">
+      <div className="flex-1 flex items-center justify-center text-fg-subtle text-sm">
         Sol panelden bir topic seçin
       </div>
     )
@@ -75,28 +74,30 @@ export function MessagePanel({ topic, messages }: Props): JSX.Element {
   return (
     <div className="flex-1 flex flex-col min-h-0 bg-bg-base">
       <div className="border-b border-bg-border px-3 py-2 flex items-center justify-between">
-        <span className="mono text-sm text-gray-200 truncate">{topic}</span>
-        <label className="flex items-center gap-1.5 text-xs text-gray-400 shrink-0 ml-2">
+        <span className="mono text-sm text-fg truncate">{topic}</span>
+        <label className="flex items-center gap-1.5 text-xs text-fg-muted shrink-0 ml-2">
           <input type="checkbox" checked={autoscroll} onChange={(e) => setAutoscroll(e.target.checked)} />
-          Autoscroll
+          Otomatik kaydır
         </label>
       </div>
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-2 flex flex-col gap-2">
         {messages.length === 0 ? (
-          <div className="text-xs text-gray-500">Bu topic için henüz mesaj yok.</div>
+          <div className="text-xs text-fg-subtle">Bu topic için henüz mesaj yok.</div>
         ) : (
           messages.map((msg, i) => {
             const { pretty, isJson } = tryPrettyJson(msg.payload)
             return (
               <div key={`${msg.timestamp}-${i}`} className="bg-bg-panel border border-bg-border rounded p-2">
-                <div className="flex items-center gap-2 mb-1 text-xs text-gray-500">
+                <div className="flex items-center gap-2 mb-1 text-xs text-fg-subtle">
                   <span className="mono">{formatTime(msg.timestamp)}</span>
                   <span>QoS {msg.qos}</span>
                   {msg.retain && (
-                    <span className="bg-amber-900/40 text-amber-300 px-1.5 rounded">retained</span>
+                    <span className="bg-warn-bg text-warn-fg px-1.5 rounded text-[10px] uppercase tracking-wide">
+                      retained
+                    </span>
                   )}
                 </div>
-                <pre className="mono text-xs whitespace-pre-wrap break-all">
+                <pre className="mono text-xs whitespace-pre-wrap break-all text-fg">
                   {isJson ? highlightJson(pretty) : pretty}
                 </pre>
               </div>

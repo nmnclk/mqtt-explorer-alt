@@ -55,6 +55,22 @@ export interface FlatRow {
   hasChildren: boolean
 }
 
+export function collectBranchPaths(root: TopicNode): string[] {
+  const paths: string[] = []
+
+  function walk(node: TopicNode): void {
+    for (const child of node.children.values()) {
+      if (child.children.size > 0) {
+        paths.push(child.fullPath)
+        walk(child)
+      }
+    }
+  }
+
+  walk(root)
+  return paths
+}
+
 /** Ağacı, react-window ile virtualized render edilebilecek düz bir satır listesine çevirir.
  * Sadece expandedPaths içinde olan node'ların çocukları listeye dahil edilir. */
 export function flattenTree(

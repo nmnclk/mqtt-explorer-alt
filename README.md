@@ -29,7 +29,7 @@ Grab the latest build for your platform from **[Releases](https://github.com/nmn
 | macOS (Intel) | `MQTT-Explorer-Alt-*-mac-x64.dmg` |
 | Windows (64-bit) | `MQTT-Explorer-Alt-*-win-x64.exe` |
 | Windows (ARM) | `MQTT-Explorer-Alt-*-win-arm64.exe` |
-| Linux (64-bit) | `MQTT-Explorer-Alt-*-linux-x64.AppImage` |
+| Linux (64-bit) | `MQTT-Explorer-Alt-*-linux-x64.AppImage` or `*-linux-x86_64.AppImage` |
 | Linux (ARM64) | `MQTT-Explorer-Alt-*-linux-arm64.AppImage` |
 
 ### macOS

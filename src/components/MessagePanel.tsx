@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { useI18n } from '../i18n/I18nContext'
 import type { IncomingMessage } from '../types/mqtt'
 
 interface Props {
@@ -6,7 +7,6 @@ interface Props {
   messages: IncomingMessage[]
 }
 
-/** JSON.stringify çıktısını basit regex tabanlı token'lara ayırıp renklendirir. */
 function highlightJson(jsonText: string): JSX.Element {
   const tokenRegex = /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+\.?\d*([eE][+-]?\d+)?)/g
   const parts: JSX.Element[] = []
@@ -48,12 +48,13 @@ function tryPrettyJson(payload: string): { pretty: string; isJson: boolean } {
   }
 }
 
-function formatTime(ts: number): string {
+function formatTime(ts: number, locale: string): string {
   const d = new Date(ts)
-  return d.toLocaleTimeString('tr-TR', { hour12: false }) + '.' + String(d.getMilliseconds()).padStart(3, '0')
+  return d.toLocaleTimeString(locale, { hour12: false }) + '.' + String(d.getMilliseconds()).padStart(3, '0')
 }
 
 export function MessagePanel({ topic, messages }: Props): JSX.Element {
+  const { t, numberLocale } = useI18n()
   const [autoscroll, setAutoscroll] = useState(true)
   const scrollRef = useRef<HTMLDivElement>(null)
 
@@ -66,7 +67,7 @@ export function MessagePanel({ topic, messages }: Props): JSX.Element {
   if (!topic) {
     return (
       <div className="flex-1 flex items-center justify-center text-fg-subtle text-sm">
-        Sol panelden bir topic seçin
+        {t.messagePanel.selectTopic}
       </div>
     )
   }
@@ -77,23 +78,23 @@ export function MessagePanel({ topic, messages }: Props): JSX.Element {
         <span className="mono text-sm text-fg truncate">{topic}</span>
         <label className="flex items-center gap-1.5 text-xs text-fg-muted shrink-0 ml-2">
           <input type="checkbox" checked={autoscroll} onChange={(e) => setAutoscroll(e.target.checked)} />
-          Otomatik kaydır
+          {t.messagePanel.autoscroll}
         </label>
       </div>
       <div ref={scrollRef} className="flex-1 overflow-y-auto px-3 py-2 flex flex-col gap-2">
         {messages.length === 0 ? (
-          <div className="text-xs text-fg-subtle">Bu topic için henüz mesaj yok.</div>
+          <div className="text-xs text-fg-subtle">{t.messagePanel.noMessages}</div>
         ) : (
           messages.map((msg, i) => {
             const { pretty, isJson } = tryPrettyJson(msg.payload)
             return (
               <div key={`${msg.timestamp}-${i}`} className="bg-bg-panel border border-bg-border rounded p-2">
                 <div className="flex items-center gap-2 mb-1 text-xs text-fg-subtle">
-                  <span className="mono">{formatTime(msg.timestamp)}</span>
+                  <span className="mono">{formatTime(msg.timestamp, numberLocale)}</span>
                   <span>QoS {msg.qos}</span>
                   {msg.retain && (
                     <span className="bg-warn-bg text-warn-fg px-1.5 rounded text-[10px] uppercase tracking-wide">
-                      retained
+                      {t.messagePanel.retained}
                     </span>
                   )}
                 </div>

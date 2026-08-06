@@ -1,3 +1,15 @@
+## What's new in v1.0.6
+
+- **English / Turkish** — language toggle (EN/TR) in the top bar; preference is saved
+- **Show data in tree** — optional last payload preview per topic in the tree
+
+## v1.0.6 yenilikleri
+
+- **İngilizce / Türkçe** — üst barda dil değiştirme (EN/TR); tercih kaydedilir
+- **Verileri ağaçta göster** — topic ağacında son payload önizlemesi
+
+---
+
 ## What's new in v1.0.5
 
 - **Fix update checker** — detects new GitHub releases without requiring `latest-mac.yml` metadata

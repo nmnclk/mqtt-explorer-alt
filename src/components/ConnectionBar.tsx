@@ -1,4 +1,6 @@
 import { ThemeToggle } from './ThemeToggle'
+import { LocaleToggle } from './LocaleToggle'
+import { useI18n } from '../i18n/I18nContext'
 import type { ThemeMode } from '../theme/palette'
 import type { ConnectionState } from '../types/mqtt'
 
@@ -9,6 +11,7 @@ interface Props {
   appVersion?: string
   theme: ThemeMode
   onToggleTheme: () => void
+  onToggleLocale: () => void
   onOpenConnections: () => void
   onDisconnect: () => Promise<void>
   onCheckUpdates?: () => void
@@ -21,16 +24,19 @@ export function ConnectionBar({
   appVersion,
   theme,
   onToggleTheme,
+  onToggleLocale,
   onOpenConnections,
   onDisconnect,
   onCheckUpdates
 }: Props): JSX.Element {
+  const { t, locale } = useI18n()
+
   const statusMeta: Record<ConnectionState, { label: string; color: string }> = {
-    idle: { label: 'Bağlı değil', color: 'bg-state-idle' },
-    disconnected: { label: 'Bağlı değil', color: 'bg-state-idle' },
-    connecting: { label: 'Bağlanıyor…', color: 'bg-state-connecting animate-pulse' },
-    connected: { label: 'Bağlı', color: 'bg-state-connected' },
-    error: { label: 'Hata', color: 'bg-state-error' }
+    idle: { label: t.connection.statusIdle, color: 'bg-state-idle' },
+    disconnected: { label: t.connection.statusIdle, color: 'bg-state-idle' },
+    connecting: { label: t.connection.statusConnecting, color: 'bg-state-connecting animate-pulse' },
+    connected: { label: t.connection.statusConnected, color: 'bg-state-connected' },
+    error: { label: t.connection.statusError, color: 'bg-state-error' }
   }
   const status = statusMeta[connectionState]
   const isConnected = connectionState === 'connected' || connectionState === 'connecting'
@@ -61,15 +67,16 @@ export function ConnectionBar({
       </div>
 
       <div className="flex items-center gap-2 shrink-0">
+        <LocaleToggle locale={locale} onToggle={onToggleLocale} />
         <ThemeToggle theme={theme} onToggle={onToggleTheme} />
         {onCheckUpdates && (
           <button
             type="button"
             onClick={onCheckUpdates}
             className="text-xs text-fg-muted hover:text-fg px-2 py-1 transition-colors"
-            title="Güncellemeleri kontrol et"
+            title={t.connection.checkUpdates}
           >
-            Güncellemeler
+            {t.connection.updates}
           </button>
         )}
         <button
@@ -77,7 +84,7 @@ export function ConnectionBar({
           onClick={onOpenConnections}
           className="text-xs bg-bg-raised hover:bg-bg-border border border-bg-border px-3 py-1.5 rounded transition-colors"
         >
-          Bağlantılar
+          {t.connection.connections}
         </button>
         {isConnected ? (
           <button
@@ -85,7 +92,7 @@ export function ConnectionBar({
             onClick={() => void onDisconnect()}
             className="text-xs bg-bg-raised hover:bg-state-error/20 border border-bg-border hover:border-state-error/40 px-3 py-1.5 rounded font-medium transition-colors"
           >
-            Bağlantıyı kes
+            {t.connection.disconnect}
           </button>
         ) : (
           <button
@@ -93,7 +100,7 @@ export function ConnectionBar({
             onClick={onOpenConnections}
             className="text-xs bg-accent hover:bg-accent-hover text-bg-base px-3 py-1.5 rounded font-medium transition-colors"
           >
-            Bağlan
+            {t.connection.connect}
           </button>
         )}
       </div>

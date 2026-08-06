@@ -7,11 +7,13 @@ import { MessagePanel } from './components/MessagePanel'
 import { PublishBar } from './components/PublishBar'
 import { useMqttBridge } from './hooks/useMqttBridge'
 import { useTheme } from './hooks/useTheme'
+import { useI18n } from './i18n/I18nContext'
 import type { UpdateInfo } from './types/update'
 
 export default function App(): JSX.Element {
   const bridge = useMqttBridge()
   const { theme, toggleTheme } = useTheme()
+  const { t, toggleLocale, numberLocale } = useI18n()
   const [selectedTopic, setSelectedTopic] = useState<string | null>(null)
   const [clearConfirmOpen, setClearConfirmOpen] = useState(false)
   const [connectionDialogOpen, setConnectionDialogOpen] = useState(false)
@@ -62,6 +64,7 @@ export default function App(): JSX.Element {
         appVersion={appVersion}
         theme={theme}
         onToggleTheme={toggleTheme}
+        onToggleLocale={toggleLocale}
         onOpenConnections={() => setConnectionDialogOpen(true)}
         onDisconnect={bridge.disconnect}
         onCheckUpdates={handleCheckUpdates}
@@ -88,7 +91,7 @@ export default function App(): JSX.Element {
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-overlay/50 p-4">
           <div className="bg-bg-panel border border-bg-border rounded-lg shadow-xl w-full max-w-sm p-5 flex flex-col gap-4">
             <p className="text-sm text-fg-muted">
-              En güncel sürümü kullanıyorsunuz
+              {t.app.noUpdateTitle}
               {appVersion !== 'dev' ? ` (v${appVersion})` : ''}.
             </p>
             <div className="flex justify-end">
@@ -97,7 +100,7 @@ export default function App(): JSX.Element {
                 onClick={() => setNoUpdateNotice(false)}
                 className="px-3 py-1.5 rounded text-sm bg-accent hover:bg-accent-hover text-bg-base font-medium"
               >
-                Tamam
+                {t.app.ok}
               </button>
             </div>
           </div>
@@ -105,12 +108,14 @@ export default function App(): JSX.Element {
       )}
 
       <div className="flex items-center justify-between px-4 py-1.5 border-b border-bg-border bg-bg-panel/60 text-xs text-fg-muted">
-        <span>Toplam mesaj: {bridge.totalMessageCount.toLocaleString('tr-TR')}</span>
+        <span>
+          {t.app.totalMessages}: {bridge.totalMessageCount.toLocaleString(numberLocale)}
+        </span>
         <button
           className="hover:text-state-error transition-colors"
           onClick={() => setClearConfirmOpen(true)}
         >
-          Ağacı temizle
+          {t.app.clearTree}
         </button>
       </div>
 
@@ -134,19 +139,19 @@ export default function App(): JSX.Element {
       {clearConfirmOpen && (
         <div className="fixed inset-0 bg-overlay/50 flex items-center justify-center z-50">
           <div className="bg-bg-panel border border-bg-border rounded p-4 w-80 flex flex-col gap-3">
-            <p className="text-sm">Tüm topic ağacı ve mesaj geçmişi silinecek. Emin misiniz?</p>
+            <p className="text-sm">{t.app.clearConfirm}</p>
             <div className="flex justify-end gap-2">
               <button
                 className="px-3 py-1.5 rounded text-sm bg-bg-raised border border-bg-border hover:bg-bg-border transition-colors"
                 onClick={() => setClearConfirmOpen(false)}
               >
-                Vazgeç
+                {t.app.cancel}
               </button>
               <button
                 className="px-3 py-1.5 rounded text-sm bg-state-error/80 hover:bg-state-error transition-colors"
                 onClick={handleClearAll}
               >
-                Temizle
+                {t.app.clear}
               </button>
             </div>
           </div>

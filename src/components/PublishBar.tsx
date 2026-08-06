@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useI18n } from '../i18n/I18nContext'
 import type { PublishRequest, QoS } from '../types/mqtt'
 
 interface Props {
@@ -7,6 +8,7 @@ interface Props {
 }
 
 export function PublishBar({ selectedTopic, onPublish }: Props): JSX.Element {
+  const { t } = useI18n()
   const [topic, setTopic] = useState(selectedTopic ?? '')
   const [payload, setPayload] = useState('')
   const [qos, setQos] = useState<QoS>(0)
@@ -19,11 +21,11 @@ export function PublishBar({ selectedTopic, onPublish }: Props): JSX.Element {
 
   async function handlePublish(): Promise<void> {
     if (!topic.trim()) {
-      setStatus('Topic gerekli')
+      setStatus(t.publishBar.topicRequired)
       return
     }
     const result = await onPublish({ topic: topic.trim(), payload, retain, qos })
-    setStatus(result.success ? 'Gönderildi ✓' : `Hata: ${result.error}`)
+    setStatus(result.success ? t.publishBar.published : t.publishBar.error(result.error ?? ''))
     setTimeout(() => setStatus(null), 3000)
   }
 
@@ -32,7 +34,7 @@ export function PublishBar({ selectedTopic, onPublish }: Props): JSX.Element {
       <div className="flex gap-2">
         <input
           className="bg-bg-raised border border-bg-border rounded px-2 py-1.5 text-sm mono flex-1 text-fg placeholder:text-fg-subtle"
-          placeholder="Topic"
+          placeholder={t.publishBar.topicPlaceholder}
           value={topic}
           onChange={(e) => setTopic(e.target.value)}
         />
@@ -47,12 +49,12 @@ export function PublishBar({ selectedTopic, onPublish }: Props): JSX.Element {
         </select>
         <label className="flex items-center gap-1 text-xs text-fg-muted px-2">
           <input type="checkbox" checked={retain} onChange={(e) => setRetain(e.target.checked)} />
-          Retain
+          {t.publishBar.retain}
         </label>
       </div>
       <textarea
         className="bg-bg-raised border border-bg-border rounded px-2 py-1.5 text-sm mono resize-y min-h-[60px] text-fg placeholder:text-fg-subtle"
-        placeholder='Payload (düz metin veya JSON, örn. {"status":"ok"})'
+        placeholder={t.publishBar.payloadPlaceholder}
         value={payload}
         onChange={(e) => setPayload(e.target.value)}
       />
@@ -61,7 +63,7 @@ export function PublishBar({ selectedTopic, onPublish }: Props): JSX.Element {
           onClick={handlePublish}
           className="bg-accent hover:bg-accent-hover text-bg-base transition-colors px-4 py-1.5 rounded text-sm font-medium"
         >
-          Publish
+          {t.publishBar.publish}
         </button>
         {status && <span className="text-xs text-fg-muted">{status}</span>}
       </div>

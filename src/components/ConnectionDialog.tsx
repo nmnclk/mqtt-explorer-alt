@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { useI18n } from '../i18n/I18nContext'
 import type {
   ConnectionConfig,
   ConnectionState,
@@ -22,9 +23,9 @@ function randomClientId(): string {
   return `explorer_${Math.random().toString(36).slice(2, 10)}`
 }
 
-function defaultFormState() {
+function createDefaultFormState(profileName: string) {
   return {
-    name: 'Yeni bağlantı',
+    name: profileName,
     protocol: 'mqtt' as MqttProtocol,
     host: 'localhost',
     port: DEFAULT_PORTS.mqtt,
@@ -56,7 +57,8 @@ export function ConnectionDialog({
   onConnect,
   onConnected
 }: Props): JSX.Element | null {
-  const [form, setForm] = useState(defaultFormState)
+  const { t } = useI18n()
+  const [form, setForm] = useState(() => createDefaultFormState(t.connectionDialog.newProfile))
   const [profiles, setProfiles] = useState<SavedConnectionProfile[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [connectError, setConnectError] = useState<string | undefined>()
@@ -65,6 +67,7 @@ export function ConnectionDialog({
   const isTls = form.protocol === 'mqtts' || form.protocol === 'wss'
   const isWs = form.protocol === 'ws' || form.protocol === 'wss'
   const isConnected = connectionState === 'connected' || connectionState === 'connecting'
+  const d = t.connectionDialog
 
   useEffect(() => {
     if (open) {
@@ -85,7 +88,7 @@ export function ConnectionDialog({
 
   function handleNewConnection(): void {
     setSelectedId(null)
-    setForm(defaultFormState())
+    setForm(createDefaultFormState(d.newProfile))
     setConnectError(undefined)
   }
 
@@ -138,7 +141,7 @@ export function ConnectionDialog({
 
   function profilePayload(): Omit<SavedConnectionProfile, 'id' | 'hasSavedPassword'> {
     return {
-      name: form.name.trim() || 'Yeni bağlantı',
+      name: form.name.trim() || d.newProfile,
       protocol: form.protocol,
       host: form.host,
       port: form.port,
@@ -198,19 +201,19 @@ export function ConnectionDialog({
         <div className="flex flex-1 min-h-0">
           <aside className="w-52 shrink-0 border-r border-bg-border bg-bg-base flex flex-col">
             <div className="flex items-center justify-between px-3 py-3 border-b border-bg-border">
-              <span className="text-sm font-medium text-fg-muted">Bağlantılar</span>
+              <span className="text-sm font-medium text-fg-muted">{d.connections}</span>
               <button
                 type="button"
                 onClick={handleNewConnection}
                 className="w-7 h-7 rounded bg-accent-muted hover:bg-accent/30 text-accent text-lg leading-none transition-colors"
-                title="Yeni bağlantı"
+                title={d.newConnection}
               >
                 +
               </button>
             </div>
             <ul className="flex-1 overflow-y-auto py-1">
               {profiles.length === 0 && (
-                <li className="px-3 py-2 text-xs text-fg-subtle">Kayıtlı profil yok</li>
+                <li className="px-3 py-2 text-xs text-fg-subtle">{d.noProfiles}</li>
               )}
               {profiles.map((p) => (
                 <li key={p.id}>
@@ -233,14 +236,14 @@ export function ConnectionDialog({
           <div className="flex-1 flex flex-col min-w-0">
             <div className="px-5 py-4 border-b border-bg-border flex items-start justify-between gap-4">
               <div>
-                <h2 className="text-base font-semibold text-fg">Bağlantı ayarları</h2>
+                <h2 className="text-base font-semibold text-fg">{d.settingsTitle}</h2>
                 <p className="text-xs text-fg-subtle mono mt-1">{uriPreview}</p>
               </div>
               <button
                 type="button"
                 onClick={onClose}
                 className="text-fg-subtle hover:text-fg text-lg leading-none px-1 transition-colors"
-                aria-label="Kapat"
+                aria-label={d.close}
               >
                 ×
               </button>
@@ -248,7 +251,7 @@ export function ConnectionDialog({
 
             <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
               <label className="block">
-                <span className={labelClass}>Profil adı</span>
+                <span className={labelClass}>{d.profileName}</span>
                 <input
                   className={inputClass}
                   value={form.name}
@@ -259,7 +262,7 @@ export function ConnectionDialog({
 
               <div className="grid grid-cols-2 gap-4">
                 <label className="block">
-                  <span className={labelClass}>Protokol</span>
+                  <span className={labelClass}>{d.protocol}</span>
                   <select
                     className={inputClass}
                     value={form.protocol}
@@ -273,7 +276,7 @@ export function ConnectionDialog({
                   </select>
                 </label>
                 <label className="block">
-                  <span className={labelClass}>Port</span>
+                  <span className={labelClass}>{d.port}</span>
                   <input
                     type="number"
                     className={inputClass}
@@ -285,7 +288,7 @@ export function ConnectionDialog({
               </div>
 
               <label className="block">
-                <span className={labelClass}>Host</span>
+                <span className={labelClass}>{d.host}</span>
                 <input
                   className={inputClass}
                   value={form.host}
@@ -297,7 +300,7 @@ export function ConnectionDialog({
 
               {isWs && (
                 <label className="block">
-                  <span className={labelClass}>Path</span>
+                  <span className={labelClass}>{d.path}</span>
                   <input
                     className={`${inputClass} mono`}
                     value={form.path}
@@ -309,7 +312,7 @@ export function ConnectionDialog({
 
               <div className="grid grid-cols-2 gap-4">
                 <label className="block">
-                  <span className={labelClass}>Kullanıcı adı</span>
+                  <span className={labelClass}>{d.username}</span>
                   <input
                     className={inputClass}
                     value={form.username}
@@ -318,7 +321,7 @@ export function ConnectionDialog({
                   />
                 </label>
                 <label className="block">
-                  <span className={labelClass}>Parola</span>
+                  <span className={labelClass}>{d.password}</span>
                   <div className="relative mt-1">
                     <input
                       type={showPassword ? 'text' : 'password'}
@@ -332,14 +335,14 @@ export function ConnectionDialog({
                       className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-fg-subtle hover:text-fg transition-colors"
                       onClick={() => setShowPassword((v) => !v)}
                     >
-                      {showPassword ? 'Gizle' : 'Göster'}
+                      {showPassword ? d.hidePassword : d.showPassword}
                     </button>
                   </div>
                 </label>
               </div>
 
               <label className="block">
-                <span className={labelClass}>Client ID</span>
+                <span className={labelClass}>{d.clientId}</span>
                 <input
                   className={`${inputClass} mono`}
                   value={form.clientId}
@@ -350,7 +353,7 @@ export function ConnectionDialog({
 
               <div className="grid grid-cols-[1fr_auto] gap-3 items-end">
                 <label className="block">
-                  <span className={labelClass}>Subscribe filtresi</span>
+                  <span className={labelClass}>{d.subscribeFilter}</span>
                   <input
                     className={`${inputClass} mono`}
                     value={form.subscribeFilter}
@@ -374,7 +377,7 @@ export function ConnectionDialog({
 
               {isTls && (
                 <div className="border border-bg-border rounded-lg p-4 space-y-3 bg-bg-raised/50">
-                  <p className="text-xs font-medium text-fg-muted">TLS</p>
+                  <p className="text-xs font-medium text-fg-muted">{d.tls}</p>
                   <label className="flex items-center gap-2 text-sm text-fg-muted">
                     <input
                       type="checkbox"
@@ -382,7 +385,7 @@ export function ConnectionDialog({
                       onChange={(e) => patch('rejectUnauthorized', !e.target.checked)}
                       className="rounded border-bg-border"
                     />
-                    Self-signed sertifikaya izin ver
+                    {d.allowSelfSigned}
                   </label>
                   <div className="flex flex-wrap gap-2">
                     <button
@@ -390,21 +393,21 @@ export function ConnectionDialog({
                       className="text-xs bg-bg-panel border border-bg-border rounded px-3 py-1.5 hover:bg-bg-border"
                       onClick={() => handlePickFile('caPath')}
                     >
-                      CA {form.caPath ? '✓' : 'seç'}
+                      CA {form.caPath ? '✓' : d.pick}
                     </button>
                     <button
                       type="button"
                       className="text-xs bg-bg-panel border border-bg-border rounded px-3 py-1.5 hover:bg-bg-border"
                       onClick={() => handlePickFile('certPath')}
                     >
-                      Cert {form.certPath ? '✓' : 'seç'}
+                      Cert {form.certPath ? '✓' : d.pick}
                     </button>
                     <button
                       type="button"
                       className="text-xs bg-bg-panel border border-bg-border rounded px-3 py-1.5 hover:bg-bg-border"
                       onClick={() => handlePickFile('keyPath')}
                     >
-                      Key {form.keyPath ? '✓' : 'seç'}
+                      Key {form.keyPath ? '✓' : d.pick}
                     </button>
                   </div>
                 </div>
@@ -424,7 +427,7 @@ export function ConnectionDialog({
                 disabled={!selectedId || isConnected}
                 className="px-3 py-1.5 text-sm rounded border border-bg-border text-fg-muted hover:text-state-error hover:border-state-error/50 disabled:opacity-40 transition-colors"
               >
-                Sil
+                {d.delete}
               </button>
               <div className="flex-1" />
               <button
@@ -433,7 +436,7 @@ export function ConnectionDialog({
                 disabled={isConnected}
                 className="px-4 py-1.5 text-sm rounded border border-bg-border bg-bg-raised hover:bg-bg-border disabled:opacity-40"
               >
-                Kaydet
+                {d.save}
               </button>
               {!isConnected ? (
                 <button
@@ -441,7 +444,7 @@ export function ConnectionDialog({
                   onClick={() => void handleConnect()}
                   className="px-4 py-1.5 text-sm rounded bg-accent hover:bg-accent-hover text-bg-base font-medium transition-colors"
                 >
-                  Bağlan
+                  {d.connect}
                 </button>
               ) : (
                 <button
@@ -449,7 +452,7 @@ export function ConnectionDialog({
                   onClick={onClose}
                   className="px-4 py-1.5 text-sm rounded bg-bg-raised border border-bg-border hover:bg-bg-border"
                 >
-                  Kapat
+                  {d.closeBtn}
                 </button>
               )}
             </div>

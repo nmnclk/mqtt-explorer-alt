@@ -1,3 +1,13 @@
+## What's new in v1.0.5
+
+- **Fix update checker** — detects new GitHub releases without requiring `latest-mac.yml` metadata
+
+## v1.0.5 yenilikleri
+
+- **Güncelleme kontrolü düzeltmesi** — GitHub Releases API ile sürüm karşılaştırması (`latest-mac.yml` gerekmez)
+
+---
+
 ## What's new in v1.0.4
 
 - **Signal theme** — custom dark/light color palette with theme toggle (☀/☾)

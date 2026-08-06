@@ -1,11 +1,52 @@
 import { app, shell } from 'electron'
-import { autoUpdater } from 'electron-updater'
 import type { BrowserWindow } from 'electron'
 import type { UpdateInfo } from '../src/types/update'
 
+const GITHUB_LATEST_API = 'https://api.github.com/repos/nmnclk/mqtt-explorer-alt/releases/latest'
 const RELEASE_PAGE = 'https://github.com/nmnclk/mqtt-explorer-alt/releases/latest'
 
 let mainWindow: BrowserWindow | null = null
+
+interface GitHubRelease {
+  tag_name?: string
+  html_url?: string
+  body?: string
+}
+
+function parseVersion(version: string): number[] {
+  return version
+    .replace(/^v/i, '')
+    .split('.')
+    .map((part) => parseInt(part, 10) || 0)
+}
+
+function isNewerVersion(latest: string, current: string): boolean {
+  const a = parseVersion(latest)
+  const b = parseVersion(current)
+  const len = Math.max(a.length, b.length)
+
+  for (let i = 0; i < len; i++) {
+    const diff = (a[i] ?? 0) - (b[i] ?? 0)
+    if (diff !== 0) return diff > 0
+  }
+  return false
+}
+
+async function fetchLatestRelease(): Promise<GitHubRelease | null> {
+  try {
+    const response = await fetch(GITHUB_LATEST_API, {
+      headers: {
+        Accept: 'application/vnd.github+json',
+        'User-Agent': 'MQTT-Explorer-Alt'
+      }
+    })
+    if (!response.ok) return null
+    return (await response.json()) as GitHubRelease
+  } catch (err) {
+    console.warn('Update check failed:', err)
+    return null
+  }
+}
 
 function notifyUpdate(info: UpdateInfo): void {
   if (mainWindow && !mainWindow.isDestroyed()) {
@@ -15,43 +56,22 @@ function notifyUpdate(info: UpdateInfo): void {
 
 export function initUpdater(win: BrowserWindow): void {
   mainWindow = win
-  autoUpdater.autoDownload = false
-  autoUpdater.autoInstallOnAppQuit = false
-  autoUpdater.disableDifferentialDownload = true
-
-  autoUpdater.on('update-available', (meta) => {
-    notifyUpdate({
-      version: meta.version,
-      releaseUrl: RELEASE_PAGE,
-      releaseNotes: typeof meta.releaseNotes === 'string' ? meta.releaseNotes : undefined
-    })
-  })
-
-  // İmzasız dağıtımda indirme başarısız olabilir; yine de sürüm kontrolü çalışır.
-  autoUpdater.on('error', (err) => {
-    console.warn('Update check failed:', err.message)
-  })
 }
 
 export async function checkForUpdates(): Promise<UpdateInfo | null> {
-  if (!app.isPackaged) return null
+  const release = await fetchLatestRelease()
+  if (!release?.tag_name) return null
 
-  try {
-    const result = await autoUpdater.checkForUpdates()
-    const update = result?.updateInfo
-    if (update && update.version !== app.getVersion()) {
-      const info: UpdateInfo = {
-        version: update.version,
-        releaseUrl: RELEASE_PAGE,
-        releaseNotes: typeof update.releaseNotes === 'string' ? update.releaseNotes : undefined
-      }
-      return info
-    }
-  } catch {
-    // GitHub API / electron-updater hatası — sessizce geç
+  const latestVersion = release.tag_name.replace(/^v/i, '')
+  const currentVersion = app.getVersion()
+
+  if (!isNewerVersion(latestVersion, currentVersion)) return null
+
+  return {
+    version: latestVersion,
+    releaseUrl: release.html_url ?? RELEASE_PAGE,
+    releaseNotes: release.body
   }
-
-  return null
 }
 
 export function scheduleUpdateChecks(): void {
